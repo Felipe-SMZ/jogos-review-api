@@ -14,10 +14,13 @@ public record ReviewRequestDto(
 
         @NotNull(message = "A nota é obrigatória")
         @Range(min = 1, max = 10, message = "A nota deve estar entre 1 e 10")
-        Long nota,
+        Integer nota,
 
         @NotBlank(message = "O comentário é obrigatório")
         @Size(max = 500, message = "O comentário deve ter no máximo 500 caracteres")
-        String comentario
-        ) {
+        String comentario,
+
+        @NotNull(message = "O id do jogo é obrigatório")
+        Long jogoId
+) {
 }
