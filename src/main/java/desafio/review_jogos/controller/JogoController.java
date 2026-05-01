@@ -5,11 +5,13 @@ import desafio.review_jogos.dto.MediaNotasResponseDto;
 import desafio.review_jogos.dto.ReviewRequestDto;
 import desafio.review_jogos.dto.ReviewResponseDto;
 import desafio.review_jogos.mapper.JogoMapper;
-import desafio.review_jogos.mapper.ReviewMapper;
 import desafio.review_jogos.model.Jogo;
-import desafio.review_jogos.model.Review;
 import desafio.review_jogos.service.JogoService;
 import desafio.review_jogos.service.ReviewService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Jogos", description = "Gerenciamento de jogos")
 @RestController
 @RequestMapping("/jogos")
 public class JogoController {
@@ -29,22 +32,39 @@ public class JogoController {
         this.reviewService = reviewService;
     }
 
+    @Operation(summary = "Criar um novo jogo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Jogo criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })
     @PostMapping
     public ResponseEntity<JogoResponseDto> inserirJogo(@Validated @RequestBody Jogo jogo) {
         Jogo jogoCadastrado = jogoService.salvar(jogo);
         return ResponseEntity.ok(JogoMapper.toResponse(jogoCadastrado));
     }
 
+    @Operation(summary = "Listar todos os jogos")
+    @ApiResponse(responseCode = "200", description = "Lista de jogos retornada com sucesso")
     @GetMapping
     public ResponseEntity<List<JogoResponseDto>> buscarTodos() {
         return ResponseEntity.ok(jogoService.buscarTodos());
     }
 
+    @Operation(summary = "Buscar jogo por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Jogo encontrado"),
+            @ApiResponse(responseCode = "404", description = "Jogo não encontrado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<JogoResponseDto> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(jogoService.buscarPorId(id));
     }
 
+    @Operation(summary = "Remover jogo por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Jogo removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Jogo não encontrado")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         jogoService.excluir(id);
@@ -52,6 +72,12 @@ public class JogoController {
     }
 
     //Reviews do jogo
+    @Operation(summary = "Criar uma review para um jogo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Review criada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Jogo não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })
     @PostMapping("/{id}/reviews")
     public ResponseEntity<ReviewResponseDto> inserirReview(
             @PathVariable Long id,
@@ -63,6 +89,11 @@ public class JogoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Listar reviews de um jogo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Jogo não encontrado")
+    })
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<ReviewResponseDto>> buscarTodosReviewsPorJogo(@PathVariable Long id) {
         return ResponseEntity.ok(reviewService.listar(id));
