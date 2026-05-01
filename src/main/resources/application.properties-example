@@ -1,0 +1,17 @@
+spring.application.name=review-jogos
+
+# Configurações do banco de dados
+spring.datasource.url=jdbc:mysql://localhost:3306/review_jogos?serverTimezone=America/Sao_Paulo
+spring.datasource.username="SeuUsuario"
+spring.datasource.password="SuaSenha"
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# Configurações do JPA/Hibernate
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Configurações do servidor
+server.port=8080
+
+
