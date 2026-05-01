@@ -1,6 +1,7 @@
 package desafio.review_jogos.controller;
 
 import desafio.review_jogos.repository.ReviewRepository;
+import desafio.review_jogos.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,15 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ReviewController {
 
-    ReviewRepository reviewRepository;
+    private final ReviewService reviewService;
 
-    public ReviewController(ReviewRepository reviewRepository) {
-        this.reviewRepository = reviewRepository;
+    public ReviewController(ReviewService reviewService) {
+        this.reviewService = reviewService;
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        reviewRepository.deleteById(id);
+        reviewService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }
