@@ -1,13 +1,13 @@
 package desafio.review_jogos.service;
 
 import desafio.review_jogos.dto.JogoResponseDto;
+import desafio.review_jogos.dto.MediaNotasResponseDto;
 import desafio.review_jogos.mapper.JogoMapper;
 import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.repository.JogoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class JogoService {
@@ -31,7 +31,7 @@ public class JogoService {
     }
 
     public List<JogoResponseDto> buscarTodos() {
-        List <Jogo> jogos = jogoRepository.findAll();
+        List<Jogo> jogos = jogoRepository.findAll();
         return jogos.stream()
                 .map(JogoMapper::toResponse)
                 .toList();
@@ -49,5 +49,13 @@ public class JogoService {
 
         jogoRepository.delete(jogoExiste);
     }
+
+    public MediaNotasResponseDto buscarMediaDoJogo(Long id) {
+        Jogo jogo = jogoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
+
+        return JogoMapper.toMediaDto(jogo);
+    }
+
 
 }
