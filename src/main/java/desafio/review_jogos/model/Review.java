@@ -8,7 +8,7 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int nota;
+    private Long nota;
     private String comentario;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -18,7 +18,7 @@ public class Review {
     public Review() {
     }
 
-    public Review(Long id, int nota, String comentario, Jogo jogo) {
+    public Review(Long id, Long nota, String comentario, Jogo jogo) {
         this.id = id;
         this.nota = nota;
         this.comentario = comentario;
@@ -33,11 +33,11 @@ public class Review {
         this.id = id;
     }
 
-    public int getNota() {
+    public Long getNota() {
         return nota;
     }
 
-    public void setNota(int nota) {
+    public void setNota(Long nota) {
         this.nota = nota;
     }
 
