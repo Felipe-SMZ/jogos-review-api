@@ -6,10 +6,9 @@ import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.service.JogoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/jogos")
@@ -26,4 +25,21 @@ public class JogoController {
         Jogo jogoCadastrado = jogoService.salvar(jogo);
         return ResponseEntity.ok(JogoMapper.toResponse(jogoCadastrado));
     }
+
+    @GetMapping
+    public ResponseEntity<List<JogoResponseDto>> buscarTodos() {
+        return ResponseEntity.ok(jogoService.buscarTodos());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<JogoResponseDto> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(jogoService.buscarPorId(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> remover(@PathVariable Long id) {
+        jogoService.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
 }
+
