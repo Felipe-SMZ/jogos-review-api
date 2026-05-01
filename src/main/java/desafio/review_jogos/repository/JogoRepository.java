@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JogoRepository extends JpaRepository<Jogo, Long> {
+
+    boolean existsByNomeIgnoreCase(String nome);
+    boolean existsById(Long id);
 }
