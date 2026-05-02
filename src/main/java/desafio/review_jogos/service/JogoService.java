@@ -2,6 +2,8 @@ package desafio.review_jogos.service;
 
 import desafio.review_jogos.dto.JogoResponseDto;
 import desafio.review_jogos.dto.MediaNotasResponseDto;
+import desafio.review_jogos.exception.RecursoJaExisteException;
+import desafio.review_jogos.exception.RecursoNaoEncontradoException;
 import desafio.review_jogos.mapper.JogoMapper;
 import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.repository.JogoRepository;
@@ -23,7 +25,7 @@ public class JogoService {
         String nomeLimpo = jogo.getNome().trim();
 
         if (jogoRepository.existsByNomeIgnoreCase(nomeLimpo)) {
-            throw new RuntimeException("Não foi possível cadastrar: O jogo '" + nomeLimpo + "' já existe.");
+            throw new RecursoJaExisteException("O jogo '" + nomeLimpo + "' já existe.");
         }
 
         jogo.setNome(nomeLimpo);
@@ -38,19 +40,19 @@ public class JogoService {
     public JogoResponseDto buscarPorId(Long id) {
         return jogoRepository.findById(id)
                 .map(JogoMapper::toResponse)
-                .orElseThrow(() -> new RuntimeException("Jogo com id " + id + " não encontrado."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + id + " não encontrado."));
     }
 
     public void excluir(Long id) {
         Jogo jogoExiste = jogoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Não foi possível excluir: Jogo com id " + id + " não encontrado."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + id + " não encontrado."));
 
         jogoRepository.delete(jogoExiste);
     }
 
     public MediaNotasResponseDto buscarMediaDoJogo(Long id) {
         Jogo jogo = jogoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + id + " não encontrado."));
 
         return JogoMapper.toMediaDto(jogo);
     }

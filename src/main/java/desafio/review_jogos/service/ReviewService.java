@@ -3,6 +3,7 @@ package desafio.review_jogos.service;
 import desafio.review_jogos.dto.MediaNotasResponseDto;
 import desafio.review_jogos.dto.ReviewRequestDto;
 import desafio.review_jogos.dto.ReviewResponseDto;
+import desafio.review_jogos.exception.RecursoNaoEncontradoException;
 import desafio.review_jogos.mapper.ReviewMapper;
 import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.model.Review;
@@ -26,7 +27,7 @@ public class ReviewService {
 
     public ReviewResponseDto salvar(Long jogoId, ReviewRequestDto dto) {
         Jogo jogo = jogoRepository.findById(jogoId)
-                .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + jogoId + " não encontrado."));
 
         Review review = ReviewMapper.toEntity(dto);
         review.setJogo(jogo); // Associa o jogo encontrado
@@ -38,7 +39,7 @@ public class ReviewService {
 
     public Page<ReviewResponseDto> listar(Long jogoId, Pageable pageable) {
         if (!jogoRepository.existsById(jogoId)) {
-            throw new RuntimeException("Não foi possível listar reviews: Jogo não encontrado.");
+            throw new RecursoNaoEncontradoException("Jogo com id " + jogoId + " não encontrado.");
         }
 
         return reviewRepository.findByJogoId(jogoId, pageable)
@@ -47,7 +48,7 @@ public class ReviewService {
 
     public void deletar(Long id) {
         Review reviewExiste = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Não foi possível excluir: Review com id " + id + " não encontrado."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Review com id " + id + " não encontrada."));
         reviewRepository.deleteById(id);
     }
 
