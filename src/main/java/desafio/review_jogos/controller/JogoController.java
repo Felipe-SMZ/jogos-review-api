@@ -12,12 +12,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Jogos", description = "Gerenciamento de jogos")
 @RestController
@@ -40,14 +42,16 @@ public class JogoController {
     @PostMapping
     public ResponseEntity<JogoResponseDto> inserirJogo(@Validated @RequestBody Jogo jogo) {
         Jogo jogoCadastrado = jogoService.salvar(jogo);
-        return ResponseEntity.ok(JogoMapper.toResponse(jogoCadastrado));
+        return ResponseEntity.status(HttpStatus.CREATED).body(JogoMapper.toResponse(jogoCadastrado));
     }
 
     @Operation(summary = "Listar todos os jogos")
     @ApiResponse(responseCode = "200", description = "Lista de jogos retornada com sucesso")
     @GetMapping
-    public ResponseEntity<List<JogoResponseDto>> buscarTodos() {
-        return ResponseEntity.ok(jogoService.buscarTodos());
+    public ResponseEntity<Page<JogoResponseDto>> buscarTodos(
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable
+    ) {
+        return ResponseEntity.ok(jogoService.buscarTodos(pageable));
     }
 
     @Operation(summary = "Buscar jogo por ID")
@@ -95,8 +99,11 @@ public class JogoController {
             @ApiResponse(responseCode = "404", description = "Jogo não encontrado")
     })
     @GetMapping("/{id}/reviews")
-    public ResponseEntity<List<ReviewResponseDto>> buscarTodosReviewsPorJogo(@PathVariable Long id) {
-        return ResponseEntity.ok(reviewService.listar(id));
+    public ResponseEntity<Page<ReviewResponseDto>> buscarTodosReviewsPorJogo(
+            @PathVariable Long id,
+            @PageableDefault(size = 10, sort = "nota", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return ResponseEntity.ok(reviewService.listar(id, pageable));
     }
 
     @Operation(summary = "Calcular média de notas de um jogo")

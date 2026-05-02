@@ -8,6 +8,8 @@ import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.model.Review;
 import desafio.review_jogos.repository.JogoRepository;
 import desafio.review_jogos.repository.ReviewRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,15 +36,13 @@ public class ReviewService {
         return ReviewMapper.toResponse(reviewSalva);
     }
 
-    public List<ReviewResponseDto> listar(Long jogoId) {
+    public Page<ReviewResponseDto> listar(Long jogoId, Pageable pageable) {
         if (!jogoRepository.existsById(jogoId)) {
             throw new RuntimeException("Não foi possível listar reviews: Jogo não encontrado.");
         }
 
-        return reviewRepository.findByJogoId(jogoId)
-                .stream()
-                .map(ReviewMapper::toResponse)
-                .toList();
+        return reviewRepository.findByJogoId(jogoId, pageable)
+                .map(ReviewMapper::toResponse);
     }
 
     public void deletar(Long id) {

@@ -270,7 +270,7 @@ http://localhost:8080
 
 ## 📈 Melhorias Futuras
 
-- [ ] Paginação e ordenação dos resultados
+-  ✅ Paginação e ordenação dos resultados
 - [ ] Filtro de jogos por gênero ou plataforma
 - [ ] Autenticação e autorização com Spring Security + JWT
 - [ ] Tratamento global de exceções com `@ControllerAdvice`

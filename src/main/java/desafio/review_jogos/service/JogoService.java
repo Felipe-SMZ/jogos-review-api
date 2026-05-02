@@ -5,9 +5,9 @@ import desafio.review_jogos.dto.MediaNotasResponseDto;
 import desafio.review_jogos.mapper.JogoMapper;
 import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.repository.JogoRepository;
+import org.springframework.data.domain.Page;       // ✅ import correto
+import org.springframework.data.domain.Pageable;   // ✅ import correto
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class JogoService {
@@ -30,11 +30,9 @@ public class JogoService {
         return jogoRepository.save(jogo);
     }
 
-    public List<JogoResponseDto> buscarTodos() {
-        List<Jogo> jogos = jogoRepository.findAll();
-        return jogos.stream()
-                .map(JogoMapper::toResponse)
-                .toList();
+    public Page<JogoResponseDto> buscarTodos(Pageable pageable) {
+        Page<Jogo> pagina = jogoRepository.findAll(pageable);
+        return pagina.map(JogoMapper::toResponse); // ✅ usando referência estática, igual ao buscarPorId
     }
 
     public JogoResponseDto buscarPorId(Long id) {
