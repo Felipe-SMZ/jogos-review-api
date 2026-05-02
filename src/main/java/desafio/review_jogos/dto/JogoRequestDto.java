@@ -1,5 +1,6 @@
 package desafio.review_jogos.dto;
 
+import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.validation.OnCreate;
 import desafio.review_jogos.validation.OnUpdate;
 import jakarta.validation.constraints.NotBlank;
@@ -21,6 +22,6 @@ public record JogoRequestDto(
 
         @NotBlank(message = "A plataforma do jogo é obrigatória")
         @Size(message = "O nome da plataforma deve ter no máximo 50 caracteres")
-        String plataforma
+        Plataforma plataforma
 ) {
 }

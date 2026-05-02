@@ -273,7 +273,7 @@ http://localhost:8080
 -  ✅ Paginação e ordenação dos resultados
 - [ ] Filtro de jogos por gênero ou plataforma
 - [ ] Autenticação e autorização com Spring Security + JWT
-- [ ] Tratamento global de exceções com `@ControllerAdvice`
+- ✅ Tratamento global de exceções com `@ControllerAdvice`
 - [ ] Testes unitários e de integração com JUnit e Mockito
 - [ ] Deploy em nuvem (Render, Railway ou AWS)
 - [ ] Containerização com Docker

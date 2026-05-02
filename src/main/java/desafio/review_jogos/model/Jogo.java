@@ -1,19 +1,22 @@
 package desafio.review_jogos.model;
 
+import desafio.review_jogos.model.enums.Plataforma;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "jogo")
+@Table(name = "jogos")
 public class Jogo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
     private String genero;
-    private String plataforma;
+
+    @Enumerated(EnumType.STRING)
+    private Plataforma plataforma;
 
     @OneToMany(mappedBy = "jogo", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
@@ -21,7 +24,7 @@ public class Jogo {
     public Jogo() {
     }
 
-    public Jogo(Long id, String nome, String genero, String plataforma) {
+    public Jogo(Long id, String nome, String genero, Plataforma plataforma) {
         this.id = id;
         this.nome = nome;
         this.genero = genero;
@@ -52,11 +55,11 @@ public class Jogo {
         this.genero = genero;
     }
 
-    public String getPlataforma() {
+    public Plataforma getPlataforma() {
         return plataforma;
     }
 
-    public void setPlataforma(String plataforma) {
+    public void setPlataforma(Plataforma plataforma) {
         this.plataforma = plataforma;
     }
 
