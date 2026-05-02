@@ -1,13 +1,11 @@
 package desafio.review_jogos.controller;
 
-import desafio.review_jogos.dto.JogoResponseDto;
-import desafio.review_jogos.dto.MediaNotasResponseDto;
-import desafio.review_jogos.dto.ReviewRequestDto;
-import desafio.review_jogos.dto.ReviewResponseDto;
+import desafio.review_jogos.dto.*;
 import desafio.review_jogos.mapper.JogoMapper;
 import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.service.JogoService;
 import desafio.review_jogos.service.ReviewService;
+import desafio.review_jogos.validation.OnUpdate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -73,6 +71,21 @@ public class JogoController {
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         jogoService.excluir(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Atualizar jogo por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Jogo atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Jogo não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "409", description = "Já existe um jogo com esse nome")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<JogoResponseDto> atualizar(
+            @PathVariable Long id,
+            @Validated @RequestBody JogoRequestDto dto) {
+
+        return ResponseEntity.ok(jogoService.atualizar(id, dto));
     }
 
     //Reviews do jogo

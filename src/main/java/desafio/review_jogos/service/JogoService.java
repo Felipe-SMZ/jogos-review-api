@@ -1,5 +1,6 @@
 package desafio.review_jogos.service;
 
+import desafio.review_jogos.dto.JogoRequestDto;
 import desafio.review_jogos.dto.JogoResponseDto;
 import desafio.review_jogos.dto.MediaNotasResponseDto;
 import desafio.review_jogos.exception.RecursoJaExisteException;
@@ -48,6 +49,17 @@ public class JogoService {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + id + " não encontrado."));
 
         jogoRepository.delete(jogoExiste);
+    }
+
+    public JogoResponseDto atualizar(Long id, JogoRequestDto dto) {
+        Jogo jogo = jogoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + id + " não encontrado."));
+
+        jogo.setNome(dto.nome());
+        jogo.setGenero(dto.genero());
+        jogo.setPlataforma(dto.plataforma());
+
+        return JogoMapper.toResponse(jogoRepository.save(jogo));
     }
 
     public MediaNotasResponseDto buscarMediaDoJogo(Long id) {

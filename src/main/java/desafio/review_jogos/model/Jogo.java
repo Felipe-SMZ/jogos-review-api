@@ -1,5 +1,6 @@
 package desafio.review_jogos.model;
 
+import desafio.review_jogos.model.enums.Genero;
 import desafio.review_jogos.model.enums.Plataforma;
 import jakarta.persistence.*;
 
@@ -13,7 +14,9 @@ public class Jogo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
-    private String genero;
+
+    @Enumerated(EnumType.STRING)
+    private Genero genero;
 
     @Enumerated(EnumType.STRING)
     private Plataforma plataforma;
@@ -24,7 +27,7 @@ public class Jogo {
     public Jogo() {
     }
 
-    public Jogo(Long id, String nome, String genero, Plataforma plataforma) {
+    public Jogo(Long id, String nome, Genero genero, Plataforma plataforma) {
         this.id = id;
         this.nome = nome;
         this.genero = genero;
@@ -47,11 +50,11 @@ public class Jogo {
         this.nome = nome;
     }
 
-    public String getGenero() {
+    public Genero getGenero() {
         return genero;
     }
 
-    public void setGenero(String genero) {
+    public void setGenero(Genero genero) {
         this.genero = genero;
     }
 

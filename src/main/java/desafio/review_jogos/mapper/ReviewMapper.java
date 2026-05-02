@@ -5,6 +5,7 @@ import desafio.review_jogos.dto.ReviewResponseDto;
 import desafio.review_jogos.model.Review;
 
 public class ReviewMapper {
+
     public static ReviewResponseDto toResponse(Review review) {
         if (review == null) return null;
 
@@ -12,7 +13,7 @@ public class ReviewMapper {
                 review.getId(),
                 review.getNota(),
                 review.getComentario(),
-                review.getJogo() != null ? review.getJogo().getId() : null // Pega o ID do jogo
+                review.getJogo() != null ? review.getJogo().getId() : null
         );
     }
 
@@ -20,10 +21,8 @@ public class ReviewMapper {
         if (dto == null) return null;
 
         Review review = new Review();
-        review.setId(dto.id());
-        review.setNota(dto.nota());
+        review.setNota(dto.nota());       // ✅ removido dto.id() e dto.jogoId()
         review.setComentario(dto.comentario());
-        // O Jogo é setado no Service, pois ele vem do banco
         return review;
     }
 }

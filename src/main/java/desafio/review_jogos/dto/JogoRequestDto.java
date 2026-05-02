@@ -1,5 +1,6 @@
 package desafio.review_jogos.dto;
 
+import desafio.review_jogos.model.enums.Genero;
 import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.validation.OnCreate;
 import desafio.review_jogos.validation.OnUpdate;
@@ -16,12 +17,10 @@ public record JogoRequestDto(
         @Size(max = 100, message = "O nome do jogo deve ter no máximo 100 caracteres")
         String nome,
 
-        @NotBlank(message = "O gênero do jogo é obrigatório")
-        @Size(max = 50, message = "O gênero do jogo deve ter no máximo 50 caracteres")
-        String genero,
+        @NotNull(message = "O gênero do jogo é obrigatório")
+        Genero genero,
 
-        @NotBlank(message = "A plataforma do jogo é obrigatória")
-        @Size(message = "O nome da plataforma deve ter no máximo 50 caracteres")
+        @NotNull(message = "A plataforma do jogo é obrigatória")
         Plataforma plataforma
 ) {
 }
