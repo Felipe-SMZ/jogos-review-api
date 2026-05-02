@@ -99,6 +99,11 @@ public class JogoController {
         return ResponseEntity.ok(reviewService.listar(id));
     }
 
+    @Operation(summary = "Calcular média de notas de um jogo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Média calculada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Jogo não encontrado")
+    })
     @GetMapping("/{id}/media")
     public ResponseEntity<MediaNotasResponseDto> mediaNotaPorJogo(@PathVariable Long id) {
         return ResponseEntity.ok(jogoService.buscarMediaDoJogo(id));
