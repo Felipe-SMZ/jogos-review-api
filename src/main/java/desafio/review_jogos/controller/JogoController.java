@@ -3,6 +3,8 @@ package desafio.review_jogos.controller;
 import desafio.review_jogos.dto.*;
 import desafio.review_jogos.mapper.JogoMapper;
 import desafio.review_jogos.model.Jogo;
+import desafio.review_jogos.model.enums.Genero;
+import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.service.JogoService;
 import desafio.review_jogos.service.ReviewService;
 import desafio.review_jogos.validation.OnUpdate;
@@ -47,9 +49,11 @@ public class JogoController {
     @ApiResponse(responseCode = "200", description = "Lista de jogos retornada com sucesso")
     @GetMapping
     public ResponseEntity<Page<JogoResponseDto>> buscarTodos(
-            @PageableDefault(size = 10, sort = "nome") Pageable pageable
-    ) {
-        return ResponseEntity.ok(jogoService.buscarTodos(pageable));
+            @RequestParam(required = false) Genero genero,
+            @RequestParam(required = false) Plataforma plataforma,
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+
+        return ResponseEntity.ok(jogoService.buscarTodos(genero, plataforma, pageable));
     }
 
     @Operation(summary = "Buscar jogo por ID")

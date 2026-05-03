@@ -7,9 +7,13 @@ import desafio.review_jogos.exception.RecursoJaExisteException;
 import desafio.review_jogos.exception.RecursoNaoEncontradoException;
 import desafio.review_jogos.mapper.JogoMapper;
 import desafio.review_jogos.model.Jogo;
+import desafio.review_jogos.model.enums.Genero;
+import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.repository.JogoRepository;
+import desafio.review_jogos.specification.JogoSpecification;
 import org.springframework.data.domain.Page;       // ✅ import correto
 import org.springframework.data.domain.Pageable;   // ✅ import correto
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,9 +37,14 @@ public class JogoService {
         return jogoRepository.save(jogo);
     }
 
-    public Page<JogoResponseDto> buscarTodos(Pageable pageable) {
-        Page<Jogo> pagina = jogoRepository.findAll(pageable);
-        return pagina.map(JogoMapper::toResponse); // ✅ usando referência estática, igual ao buscarPorId
+    public Page<JogoResponseDto> buscarTodos(Genero genero, Plataforma plataforma, Pageable pageable) {
+
+        Specification<Jogo> spec = Specification
+                .where(JogoSpecification.porGenero(genero))
+                .and(JogoSpecification.porPlataforma(plataforma));
+
+        return jogoRepository.findAll(spec, pageable)
+                .map(JogoMapper::toResponse);
     }
 
     public JogoResponseDto buscarPorId(Long id) {
