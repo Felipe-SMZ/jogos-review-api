@@ -14,4 +14,10 @@ spring.jpa.properties.hibernate.format_sql=true
 # Configurações do servidor
 server.port=8080
 
+# Configurações do servidor
+server.port=8080
 
+springdoc.default-flat-param-object=true
+
+# Configurações de segurança
+api.security.token.secret=${JWT_SECRET:minha-chave-local-dev}

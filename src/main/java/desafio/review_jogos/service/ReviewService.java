@@ -7,13 +7,13 @@ import desafio.review_jogos.exception.RecursoNaoEncontradoException;
 import desafio.review_jogos.mapper.ReviewMapper;
 import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.model.Review;
+import desafio.review_jogos.model.Usuario;
 import desafio.review_jogos.repository.JogoRepository;
 import desafio.review_jogos.repository.ReviewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ReviewService {
@@ -25,16 +25,15 @@ public class ReviewService {
         this.jogoRepository = jogoRepository;
     }
 
-    public ReviewResponseDto salvar(Long jogoId, ReviewRequestDto dto) {
+    public ReviewResponseDto salvar(Long jogoId, ReviewRequestDto dto, Usuario usuarioAutenticado) {
         Jogo jogo = jogoRepository.findById(jogoId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + jogoId + " não encontrado."));
 
         Review review = ReviewMapper.toEntity(dto);
-        review.setJogo(jogo); // Associa o jogo encontrado
+        review.setJogo(jogo);
+        review.setUsuario(usuarioAutenticado); // ← associa o dono da review
 
-        Review reviewSalva = reviewRepository.save(review);
-
-        return ReviewMapper.toResponse(reviewSalva);
+        return ReviewMapper.toResponse(reviewRepository.save(review));
     }
 
     public Page<ReviewResponseDto> listar(Long jogoId, Pageable pageable) {
@@ -46,10 +45,17 @@ public class ReviewService {
                 .map(ReviewMapper::toResponse);
     }
 
-    public void deletar(Long id) {
-        Review reviewExiste = reviewRepository.findById(id)
+    public void deletar(Long id, Usuario usuarioAutenticado) {
+        Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Review com id " + id + " não encontrada."));
+
+        boolean ehDono = review.getUsuario().getId().equals(usuarioAutenticado.getId());
+        boolean ehAdmin = usuarioAutenticado.getRole().name().equals("ROLE_ADMIN");
+
+        if (!ehDono && !ehAdmin) {
+            throw new AccessDeniedException("Você não tem permissão para deletar esta review.");
+        }
+
         reviewRepository.deleteById(id);
     }
-
 }

@@ -3,6 +3,7 @@ package desafio.review_jogos.controller;
 import desafio.review_jogos.dto.*;
 import desafio.review_jogos.mapper.JogoMapper;
 import desafio.review_jogos.model.Jogo;
+import desafio.review_jogos.model.Usuario;
 import desafio.review_jogos.model.enums.Genero;
 import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.service.JogoService;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -102,10 +104,10 @@ public class JogoController {
     @PostMapping("/{id}/reviews")
     public ResponseEntity<ReviewResponseDto> inserirReview(
             @PathVariable Long id,
-            @Validated @RequestBody ReviewRequestDto dto) {
+            @Validated @RequestBody ReviewRequestDto dto,
+            @AuthenticationPrincipal Usuario usuarioAutenticado) {
 
-        // Passamos o ID da URL e o DTO para o Service
-        ReviewResponseDto response = reviewService.salvar(id, dto);
+        ReviewResponseDto response = reviewService.salvar(id, dto, usuarioAutenticado);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

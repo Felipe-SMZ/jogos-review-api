@@ -15,6 +15,10 @@ public class Review {
     @JoinColumn(name = "jogo_id")
     private Jogo jogo;
 
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
     public Review() {
     }
 
@@ -55,5 +59,13 @@ public class Review {
 
     public void setJogo(Jogo jogo) {
         this.jogo = jogo;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }
