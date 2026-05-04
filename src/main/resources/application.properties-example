@@ -21,3 +21,7 @@ springdoc.default-flat-param-object=true
 
 # Configurações de segurança
 api.security.token.secret=${JWT_SECRET:minha-chave-local-dev}
+
+# Configurações do Admin
+admin.email=seu_email_admin
+admin.senha=sua_senha_admin

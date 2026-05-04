@@ -148,6 +148,7 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 | Listar e buscar jogos           | ✅ público  | ✅ público  |
 | Cadastrar, editar, deletar jogo | ❌          | ✅          |
 | Criar review                    | ✅          | ✅          |
+| Atualizar própria review        | ✅          | ❌          |
 | Deletar própria review          | ✅          | ✅          |
 | Deletar review de outro usuário | ❌          | ✅          |
 
@@ -171,6 +172,7 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 - [x] Deletar um jogo
 - [x] Criar uma review para um jogo
 - [x] Listar todas as reviews de um jogo (com paginação)
+- [x] Atualizar uma review (apenas o dono)
 - [x] Deletar uma review
 - [x] Calcular a média de notas de um jogo
 - [x] Tratamento global de exceções com respostas padronizadas
@@ -201,11 +203,12 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 
 ### ⭐ Reviews
 
-| Método   | Endpoint              | Descrição                                   | Acesso        |
-|----------|-----------------------|---------------------------------------------|---------------|
-| `POST`   | `/jogos/{id}/reviews` | Cria uma review para um jogo                | USER ou ADMIN |
-| `GET`    | `/jogos/{id}/reviews` | Lista as reviews de um jogo (com paginação) | Público       |
-| `DELETE` | `/reviews/{id}`       | Remove uma review pelo ID                   | Dono ou ADMIN |
+| Método   | Endpoint              | Descrição                                        | Acesso        |
+|----------|-----------------------|--------------------------------------------------|---------------|
+| `POST`   | `/jogos/{id}/reviews` | Cria uma review para um jogo                     | USER ou ADMIN |
+| `GET`    | `/jogos/{id}/reviews` | Lista as reviews de um jogo (com paginação)      | Público       |
+| `PUT`    | `/reviews/{id}`       | Atualiza nota e/ou comentário de uma review      | Dono          |
+| `DELETE` | `/reviews/{id}`       | Remove uma review pelo ID                        | Dono ou ADMIN |
 
 ### 📊 Estatísticas
 
@@ -295,6 +298,28 @@ GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc  → com paginação
 }
 ```
 
+### Atualizar uma review — `PUT /reviews/{id}` (requer dono da review)
+
+```json
+{
+  "nota": 10,
+  "comentario": "Mudei de ideia, é perfeito!"
+}
+```
+
+> Ambos os campos são opcionais — envie apenas o que deseja atualizar.
+
+**Response `200 OK`:**
+
+```json
+{
+  "id": 1,
+  "nota": 10,
+  "comentario": "Mudei de ideia, é perfeito!",
+  "jogoId": 1
+}
+```
+
 ### Consultar média de notas — `GET /jogos/1/media`
 
 **Response `200 OK`:**
@@ -352,6 +377,33 @@ O projeto usa `@RestControllerAdvice` para capturar exceções e retornar respos
 | `MethodArgumentNotValidException` | 400    | Dados de entrada inválidos                      |
 | `AccessDeniedException`           | 403    | Usuário sem permissão para a operação           |
 | `Exception`                       | 500    | Erros inesperados                               |
+
+---
+
+## 🧪 Testes
+
+O projeto conta com testes unitários e de integração cobrindo as principais regras de negócio e endpoints da API.
+
+### Testes Unitários — JUnit 5 + Mockito
+
+| Classe             | Cobertura                                                       |
+|--------------------|-----------------------------------------------------------------|
+| `JogoServiceTest`  | salvar, buscar, atualizar, excluir e média de notas             |
+| `ReviewServiceTest`| salvar, deletar e atualizar com controle de permissão           |
+| `TokenServiceTest` | geração e validação de tokens JWT                               |
+
+### Testes de Integração — MockMvc + H2
+
+| Classe              | Cobertura                                                       |
+|---------------------|-----------------------------------------------------------------|
+| `JogoControllerIT`  | 9 testes cobrindo CRUD completo e controle de acesso            |
+| `ReviewControllerIT`| 11 testes cobrindo CRUD, permissões e validações                |
+
+### Executar os testes
+
+```bash
+mvn test
+```
 
 ---
 
@@ -443,6 +495,7 @@ http://localhost:8080
 - ✅ **Senhas protegidas** com hash BCrypt
 - ✅ **Autorização por roles** com controle fino por endpoint
 - ✅ **Injeção de dependência por construtor** em todas as classes
+- ✅ **Testes unitários e de integração** com JUnit 5, Mockito e MockMvc
 
 ---
 
@@ -452,8 +505,8 @@ http://localhost:8080
 - [x] Filtro de jogos por gênero ou plataforma
 - [x] Tratamento global de exceções com `@ControllerAdvice`
 - [x] Autenticação e autorização com Spring Security + JWT
-- [ ] Endpoint `PUT /reviews/{id}` para atualizar nota e comentário
-- [ ] Testes unitários e de integração com JUnit e Mockito
+- [x] Endpoint `PUT /reviews/{id}` para atualizar nota e comentário
+- [x] Testes unitários e de integração com JUnit e Mockito
 - [ ] Deploy em nuvem (Render, Railway ou AWS)
 - [ ] Containerização com Docker
 

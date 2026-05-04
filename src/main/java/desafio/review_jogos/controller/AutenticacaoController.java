@@ -67,7 +67,7 @@ public class AutenticacaoController {
 
     @Operation(
             summary = "Registrar usuário",
-            description = "Cadastra um novo usuário. O campo role é opcional — padrão: ROLE_USER"
+            description = "Cadastra um novo usuário com role ROLE_USER"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso"),
@@ -85,7 +85,7 @@ public class AutenticacaoController {
         var usuario = new Usuario();
         usuario.setEmail(dto.email());
         usuario.setSenha(passwordEncoder.encode(dto.senha()));
-        usuario.setRole(dto.role() != null ? dto.role() : Role.ROLE_USER);
+        usuario.setRole(Role.ROLE_USER);
 
         usuarioRepository.save(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).build();
