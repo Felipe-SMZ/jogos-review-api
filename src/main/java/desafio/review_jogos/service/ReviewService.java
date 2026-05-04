@@ -58,4 +58,22 @@ public class ReviewService {
 
         reviewRepository.deleteById(id);
     }
+
+    public ReviewResponseDto atualizar(Long id, ReviewRequestDto dto, Usuario usuarioAutenticado) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Review com id " + id + " não encontrada."));
+
+        if (!review.getUsuario().getId().equals(usuarioAutenticado.getId())) {
+            throw new AccessDeniedException("Você não tem permissão para editar esta review.");
+        }
+
+        if (dto.nota() != null) {
+            review.setNota(dto.nota());
+        }
+        if (dto.comentario() != null && !dto.comentario().isBlank()) {
+            review.setComentario(dto.comentario());
+        }
+
+        return ReviewMapper.toResponse(reviewRepository.save(review));
+    }
 }

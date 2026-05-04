@@ -8,6 +8,7 @@ import desafio.review_jogos.model.enums.Genero;
 import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.service.JogoService;
 import desafio.review_jogos.service.ReviewService;
+import desafio.review_jogos.validation.OnCreate;
 import desafio.review_jogos.validation.OnUpdate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -104,7 +105,7 @@ public class JogoController {
     @PostMapping("/{id}/reviews")
     public ResponseEntity<ReviewResponseDto> inserirReview(
             @PathVariable Long id,
-            @Validated @RequestBody ReviewRequestDto dto,
+            @Validated(OnCreate.class) @RequestBody ReviewRequestDto dto,
             @AuthenticationPrincipal Usuario usuarioAutenticado) {
 
         ReviewResponseDto response = reviewService.salvar(id, dto, usuarioAutenticado);

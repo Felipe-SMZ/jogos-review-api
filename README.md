@@ -4,6 +4,7 @@
 
 ![Java](https://img.shields.io/badge/Java-21+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot_4-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
 ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
@@ -18,7 +19,7 @@ possível cadastrar jogos com informações como nome, gênero e plataforma, al�
 comentários para cada jogo.
 
 O projeto foi desenvolvido com foco em boas práticas de desenvolvimento backend, separação de responsabilidades em
-camadas e documentação interativa via Swagger/OpenAPI.
+camadas, autenticação e autorização com Spring Security + JWT e documentação interativa via Swagger/OpenAPI.
 
 ---
 
@@ -29,8 +30,10 @@ camadas e documentação interativa via Swagger/OpenAPI.
 | **Java 21+**                | Linguagem principal do projeto        |
 | **Spring Boot 4**           | Framework para criação da aplicação   |
 | **Spring Web**              | Criação dos endpoints REST            |
+| **Spring Security**         | Autenticação e autorização            |
 | **Spring Data JPA**         | Abstração de acesso ao banco de dados |
 | **Hibernate**               | ORM para mapeamento objeto-relacional |
+| **Auth0 JWT**               | Geração e validação de tokens JWT     |
 | **MySQL**                   | Banco de dados relacional             |
 | **Maven**                   | Gerenciamento de dependências e build |
 | **Swagger / OpenAPI 2.8.8** | Documentação interativa da API        |
@@ -45,12 +48,12 @@ escalabilidade do código.
 ```
 src/main/java/desafio/review_jogos/
 │
-├── config/           → Configurações da aplicação (Swagger/OpenAPI)
+├── config/           → Configurações da aplicação (Swagger/OpenAPI, Security, Filtro JWT)
 ├── controller/       → Recebe e processa as requisições HTTP
 ├── service/          → Contém as regras de negócio
 ├── repository/       → Acesso e operações no banco de dados
 ├── model/            → Entidades JPA mapeadas para o banco
-│   └── enums/        → Enums de Gênero e Plataforma
+│   └── enums/        → Enums de Gênero, Plataforma e Role
 ├── dto/              → Objetos de Transferência de Dados (DTOs)
 ├── mapper/           → Conversão entre entidades e DTOs
 ├── exception/        → Exceções customizadas e handler global
@@ -73,21 +76,31 @@ src/main/java/desafio/review_jogos/
 
 ### ⭐ Review
 
-| Campo        | Tipo    | Descrição                          |
-|--------------|---------|------------------------------------|
-| `id`         | Long    | Identificador único                |
-| `nota`       | Integer | Nota de 1 a 10                     |
-| `comentario` | String  | Comentário da avaliação            |
-| `jogo`       | Jogo    | Relacionamento com a entidade Jogo |
+| Campo        | Tipo    | Descrição                           |
+|--------------|---------|-------------------------------------|
+| `id`         | Long    | Identificador único                 |
+| `nota`       | Integer | Nota de 1 a 10                      |
+| `comentario` | String  | Comentário da avaliação             |
+| `jogo`       | Jogo    | Relacionamento com a entidade Jogo  |
+| `usuario`    | Usuario | Relacionamento com o dono da review |
+
+### 👤 Usuario
+
+| Campo   | Tipo        | Descrição               |
+|---------|-------------|-------------------------|
+| `id`    | Long        | Identificador único     |
+| `email` | String      | E-mail único do usuário |
+| `senha` | String      | Senha com hash BCrypt   |
+| `role`  | Role (enum) | Papel do usuário        |
 
 ### 📐 Relacionamento
 
 ```
-Jogo  ──────────────<  Review
-(1)                    (N)
+Usuario  ──────────────<  Review  >──────────────  Jogo
+  (1)                     (N)  (N)                  (1)
 ```
 
-Um jogo pode ter **muitas reviews**, mas cada review pertence a **um único jogo** (`@OneToMany` / `@ManyToOne`).
+Um usuário pode ter **muitas reviews**, cada review pertence a **um único usuário** e a **um único jogo**.
 
 ---
 
@@ -108,6 +121,44 @@ PS4, PS5, XBOX_ONE, XBOX_SERIES_X, XBOX_SERIES_S,
 PC, NINTENDO_SWITCH, MOBILE
 ```
 
+### Role
+
+```
+ROLE_USER, ROLE_ADMIN
+```
+
+---
+
+## 🔐 Autenticação e Autorização
+
+O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
+
+### Fluxo de autenticação
+
+```
+1. POST /auth/registrar  →  cria usuário com senha hasheada (BCrypt)
+2. POST /auth/login      →  valida credenciais e retorna token JWT
+3. Requisições protegidas →  enviar token no header: Authorization: Bearer <token>
+```
+
+### Controle de acesso por role
+
+| Ação                            | ROLE_USER  | ROLE_ADMIN |
+|---------------------------------|------------|------------|
+| Listar e buscar jogos           | ✅ público  | ✅ público  |
+| Cadastrar, editar, deletar jogo | ❌          | ✅          |
+| Criar review                    | ✅          | ✅          |
+| Deletar própria review          | ✅          | ✅          |
+| Deletar review de outro usuário | ❌          | ✅          |
+
+### Como testar no Swagger
+
+1. Acesse `http://localhost:8080/swagger-ui/index.html`
+2. Use `POST /auth/registrar` para criar um usuário
+3. Use `POST /auth/login` para obter o token JWT
+4. Clique em **Authorize** 🔒 no topo da página
+5. Cole o token (sem o `Bearer `) e confirme
+
 ---
 
 ## 🚀 Funcionalidades
@@ -123,40 +174,77 @@ PC, NINTENDO_SWITCH, MOBILE
 - [x] Deletar uma review
 - [x] Calcular a média de notas de um jogo
 - [x] Tratamento global de exceções com respostas padronizadas
+- [x] Autenticação e autorização com Spring Security + JWT
+- [x] Controle de acesso por roles (ROLE_USER e ROLE_ADMIN)
+- [x] Restrição de delete de review ao próprio dono ou ADMIN
 
 ---
 
 ## 🌐 Endpoints da API
 
+### 🔐 Autenticação
+
+| Método | Endpoint          | Descrição                           | Acesso  |
+|--------|-------------------|-------------------------------------|---------|
+| `POST` | `/auth/registrar` | Cadastra um novo usuário            | Público |
+| `POST` | `/auth/login`     | Realiza login e retorna o token JWT | Público |
+
 ### 🎮 Jogos
 
-| Método   | Endpoint      | Descrição                                          |
-|----------|---------------|----------------------------------------------------|
-| `POST`   | `/jogos`      | Cadastra um novo jogo                              |
-| `GET`    | `/jogos`      | Lista todos os jogos (suporta filtros e paginação) |
-| `GET`    | `/jogos/{id}` | Busca um jogo pelo ID                              |
-| `PUT`    | `/jogos/{id}` | Atualiza um jogo pelo ID                           |
-| `DELETE` | `/jogos/{id}` | Remove um jogo pelo ID                             |
+| Método   | Endpoint      | Descrição                                          | Acesso  |
+|----------|---------------|----------------------------------------------------|---------|
+| `POST`   | `/jogos`      | Cadastra um novo jogo                              | ADMIN   |
+| `GET`    | `/jogos`      | Lista todos os jogos (suporta filtros e paginação) | Público |
+| `GET`    | `/jogos/{id}` | Busca um jogo pelo ID                              | Público |
+| `PUT`    | `/jogos/{id}` | Atualiza um jogo pelo ID                           | ADMIN   |
+| `DELETE` | `/jogos/{id}` | Remove um jogo pelo ID                             | ADMIN   |
 
 ### ⭐ Reviews
 
-| Método   | Endpoint              | Descrição                                   |
-|----------|-----------------------|---------------------------------------------|
-| `POST`   | `/jogos/{id}/reviews` | Cria uma review para um jogo                |
-| `GET`    | `/jogos/{id}/reviews` | Lista as reviews de um jogo (com paginação) |
-| `DELETE` | `/reviews/{id}`       | Remove uma review pelo ID                   |
+| Método   | Endpoint              | Descrição                                   | Acesso        |
+|----------|-----------------------|---------------------------------------------|---------------|
+| `POST`   | `/jogos/{id}/reviews` | Cria uma review para um jogo                | USER ou ADMIN |
+| `GET`    | `/jogos/{id}/reviews` | Lista as reviews de um jogo (com paginação) | Público       |
+| `DELETE` | `/reviews/{id}`       | Remove uma review pelo ID                   | Dono ou ADMIN |
 
 ### 📊 Estatísticas
 
-| Método | Endpoint            | Descrição                           |
-|--------|---------------------|-------------------------------------|
-| `GET`  | `/jogos/{id}/media` | Retorna a média de notas de um jogo |
+| Método | Endpoint            | Descrição                           | Acesso  |
+|--------|---------------------|-------------------------------------|---------|
+| `GET`  | `/jogos/{id}/media` | Retorna a média de notas de um jogo | Público |
 
 ---
 
 ## 📋 Exemplos de Requisição
 
-### Criar um jogo — `POST /jogos`
+### Registrar usuário — `POST /auth/registrar`
+
+```json
+{
+  "email": "usuario@teste.com",
+  "senha": "12345678",
+  "role": "ROLE_USER"
+}
+```
+
+### Login — `POST /auth/login`
+
+```json
+{
+  "email": "usuario@teste.com",
+  "senha": "12345678"
+}
+```
+
+**Response `200 OK`:**
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### Criar um jogo — `POST /jogos` (requer ADMIN)
 
 ```json
 {
@@ -180,14 +268,14 @@ PC, NINTENDO_SWITCH, MOBILE
 ### Listar jogos com filtros — `GET /jogos`
 
 ```
-GET /jogos                                        → todos os jogos
-GET /jogos?genero=RPG                             → filtrado por gênero
-GET /jogos?plataforma=PS5                         → filtrado por plataforma
-GET /jogos?genero=RPG&plataforma=PS5              → filtrado pelos dois
-GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc → com paginação
+GET /jogos                                         → todos os jogos
+GET /jogos?genero=RPG                              → filtrado por gênero
+GET /jogos?plataforma=PS5                          → filtrado por plataforma
+GET /jogos?genero=RPG&plataforma=PS5               → filtrado pelos dois
+GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc  → com paginação
 ```
 
-### Criar uma review — `POST /jogos/1/reviews`
+### Criar uma review — `POST /jogos/1/reviews` (requer USER ou ADMIN)
 
 ```json
 {
@@ -223,10 +311,10 @@ GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc → com paginação
 
 ```json
 {
-  "status": 404,
-  "erro": "Not Found",
-  "message": "Jogo com id 99 não encontrado.",
-  "timestamp": "2026-05-02T10:30:00"
+  "status": 403,
+  "erro": "Forbidden",
+  "message": "Você não tem permissão para deletar esta review.",
+  "timestamp": "2026-05-03T20:00:00"
 }
 ```
 
@@ -243,7 +331,6 @@ Sem ela, cada combinação de filtros exigiria um método diferente no repositor
 **Como funciona:**
 
 ```java
-// JogoSpecification.java
 public static Specification<Jogo> porGenero(Genero genero) {
     return (root, query, cb) ->
             genero == null ? null : cb.equal(root.get("genero"), genero);
@@ -252,37 +339,19 @@ public static Specification<Jogo> porGenero(Genero genero) {
 
 Quando o filtro é `null`, retorna `null` e o Spring Data ignora aquela condição automaticamente.
 
-**Como combinar no Service:**
-
-```java
-Specification<Jogo> spec = Specification
-        .where(JogoSpecification.porGenero(genero))
-        .and(JogoSpecification.porPlataforma(plataforma));
-
-return jogoRepository.
-
-findAll(spec, pageable).
-
-map(JogoMapper::toResponse);
-```
-
-**Para adicionar um novo filtro**, basta criar um novo método estático na `JogoSpecification` e encadeá-lo com `.and()`
-no Service.
-
-**Requisito:** o repository deve estender `JpaSpecificationExecutor<Jogo>`.
-
 ---
 
 ## ⚠️ Tratamento de Exceções
 
 O projeto usa `@RestControllerAdvice` para capturar exceções e retornar respostas padronizadas.
 
-| Exceção                           | Status | Quando ocorre                 |
-|-----------------------------------|--------|-------------------------------|
-| `RecursoNaoEncontradoException`   | 404    | Jogo ou review não encontrado |
-| `RecursoJaExisteException`        | 409    | Jogo com nome duplicado       |
-| `MethodArgumentNotValidException` | 400    | Dados de entrada inválidos    |
-| `Exception`                       | 500    | Erros inesperados             |
+| Exceção                           | Status | Quando ocorre                                   |
+|-----------------------------------|--------|-------------------------------------------------|
+| `RecursoNaoEncontradoException`   | 404    | Jogo ou review não encontrado                   |
+| `RecursoJaExisteException`        | 409    | Jogo com nome duplicado ou e-mail já cadastrado |
+| `MethodArgumentNotValidException` | 400    | Dados de entrada inválidos                      |
+| `AccessDeniedException`           | 403    | Usuário sem permissão para a operação           |
+| `Exception`                       | 500    | Erros inesperados                               |
 
 ---
 
@@ -317,8 +386,8 @@ cd review-de-jogos
 **2. Configure o banco de dados**
 
 ```sql
-CREATE
-DATABASE review_jogos;
+DROP DATABASE IF EXISTS review_jogos;
+CREATE DATABASE review_jogos;
 ```
 
 Crie o arquivo `src/main/resources/application.properties`:
@@ -330,6 +399,7 @@ spring.datasource.password=sua_senha
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 springdoc.default-flat-param-object=true
+api.security.token.secret=seu_secret_jwt
 ```
 
 **3. Execute o projeto**
@@ -338,7 +408,19 @@ springdoc.default-flat-param-object=true
 mvn spring-boot:run
 ```
 
-**4. Acesse a API**
+**4. Crie os usuários iniciais via API**
+
+```bash
+# Criar admin
+POST /auth/registrar
+{ "email": "admin@teste.com", "senha": "sua_senha", "role": "ROLE_ADMIN" }
+
+# Criar usuário comum
+POST /auth/registrar
+{ "email": "user@teste.com", "senha": "sua_senha", "role": "ROLE_USER" }
+```
+
+**5. Acesse a API**
 
 ```
 http://localhost:8080
@@ -349,7 +431,7 @@ http://localhost:8080
 ## 💡 Boas Práticas Aplicadas
 
 - ✅ **DTOs** para não expor as entidades JPA diretamente nas respostas
-- ✅ **Enums** para garantir consistência nos dados de gênero e plataforma
+- ✅ **Enums** para garantir consistência nos dados de gênero, plataforma e role
 - ✅ **Bean Validation** com grupos `OnCreate` e `OnUpdate`
 - ✅ **Arquitetura em camadas** com separação clara de responsabilidades
 - ✅ **Mapper** dedicado para conversão entre entidades e DTOs
@@ -357,6 +439,10 @@ http://localhost:8080
 - ✅ **Paginação e ordenação** com `Pageable` e `@PageableDefault`
 - ✅ **Filtros dinâmicos** com Spring Data Specification
 - ✅ **Documentação automática** com Swagger / OpenAPI
+- ✅ **Autenticação stateless** com Spring Security + JWT
+- ✅ **Senhas protegidas** com hash BCrypt
+- ✅ **Autorização por roles** com controle fino por endpoint
+- ✅ **Injeção de dependência por construtor** em todas as classes
 
 ---
 
@@ -365,7 +451,8 @@ http://localhost:8080
 - [x] Paginação e ordenação dos resultados
 - [x] Filtro de jogos por gênero ou plataforma
 - [x] Tratamento global de exceções com `@ControllerAdvice`
-- [ ] Autenticação e autorização com Spring Security + JWT
+- [x] Autenticação e autorização com Spring Security + JWT
+- [ ] Endpoint `PUT /reviews/{id}` para atualizar nota e comentário
 - [ ] Testes unitários e de integração com JUnit e Mockito
 - [ ] Deploy em nuvem (Render, Railway ou AWS)
 - [ ] Containerização com Docker

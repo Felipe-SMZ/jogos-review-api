@@ -43,6 +43,7 @@ public class SecurityConfig {
                         // USER ou ADMIN autenticado
                         .requestMatchers(HttpMethod.POST, "/jogos/*/reviews").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/reviews/**").authenticated()
 
                         .anyRequest().authenticated()
                 )
