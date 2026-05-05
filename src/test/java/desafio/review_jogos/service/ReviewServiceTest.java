@@ -2,6 +2,7 @@ package desafio.review_jogos.service;
 
 import desafio.review_jogos.dto.ReviewRequestDto;
 import desafio.review_jogos.dto.ReviewResponseDto;
+import desafio.review_jogos.exception.RecursoJaExisteException;
 import desafio.review_jogos.exception.RecursoNaoEncontradoException;
 import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.model.Review;
@@ -61,6 +62,7 @@ class ReviewServiceTest {
     @DisplayName("salvar: deve criar review com sucesso")
     void salvar_sucesso() {
         when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
+        when(reviewRepository.existsByJogoIdAndUsuarioId(1L, dono.getId())).thenReturn(false); // ← adicionar
         when(reviewRepository.save(any())).thenReturn(review);
 
         ReviewResponseDto resultado = reviewService.salvar(1L, new ReviewRequestDto(9, "Obra prima"), dono);
@@ -79,6 +81,18 @@ class ReviewServiceTest {
                 .hasMessageContaining("99");
     }
 
+    @Test
+    @DisplayName("salvar: deve lançar exceção quando usuário já possui review para o jogo")
+    void salvar_reviewDuplicada() {
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
+        when(reviewRepository.existsByJogoIdAndUsuarioId(1L, dono.getId())).thenReturn(true);
+
+        assertThatThrownBy(() -> reviewService.salvar(1L, new ReviewRequestDto(9, "Obra prima"), dono))
+                .isInstanceOf(RecursoJaExisteException.class)
+                .hasMessageContaining("já possui uma review");
+
+        verify(reviewRepository, never()).save(any());
+    }
     // ── deletar ───────────────────────────────────────────────────────────────
 
     @Test

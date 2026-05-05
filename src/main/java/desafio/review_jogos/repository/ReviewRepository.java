@@ -15,4 +15,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Page<Review> findByJogoId(Long jogoId, Pageable pageable);
 
+    boolean existsByJogoIdAndUsuarioId(Long jogoId, Long usuarioId);
+
 }

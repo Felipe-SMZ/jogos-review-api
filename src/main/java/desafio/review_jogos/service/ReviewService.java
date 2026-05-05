@@ -3,6 +3,7 @@ package desafio.review_jogos.service;
 import desafio.review_jogos.dto.MediaNotasResponseDto;
 import desafio.review_jogos.dto.ReviewRequestDto;
 import desafio.review_jogos.dto.ReviewResponseDto;
+import desafio.review_jogos.exception.RecursoJaExisteException;
 import desafio.review_jogos.exception.RecursoNaoEncontradoException;
 import desafio.review_jogos.mapper.ReviewMapper;
 import desafio.review_jogos.model.Jogo;
@@ -25,13 +26,28 @@ public class ReviewService {
         this.jogoRepository = jogoRepository;
     }
 
+//    public ReviewResponseDto salvar(Long jogoId, ReviewRequestDto dto, Usuario usuarioAutenticado) {
+//        Jogo jogo = jogoRepository.findById(jogoId)
+//                .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + jogoId + " não encontrado."));
+//
+//        Review review = ReviewMapper.toEntity(dto);
+//        review.setJogo(jogo);
+//        review.setUsuario(usuarioAutenticado); // ← associa o dono da review
+//
+//        return ReviewMapper.toResponse(reviewRepository.save(review));
+//    }
+
     public ReviewResponseDto salvar(Long jogoId, ReviewRequestDto dto, Usuario usuarioAutenticado) {
         Jogo jogo = jogoRepository.findById(jogoId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + jogoId + " não encontrado."));
 
+        if (reviewRepository.existsByJogoIdAndUsuarioId(jogoId, usuarioAutenticado.getId())) {
+            throw new RecursoJaExisteException("Você já possui uma review para este jogo.");
+        }
+
         Review review = ReviewMapper.toEntity(dto);
         review.setJogo(jogo);
-        review.setUsuario(usuarioAutenticado); // ← associa o dono da review
+        review.setUsuario(usuarioAutenticado);
 
         return ReviewMapper.toResponse(reviewRepository.save(review));
     }
