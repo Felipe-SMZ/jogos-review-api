@@ -23,15 +23,20 @@ import java.util.List;
 public class SecurityConfig {
 
     private final FiltroSeguranca filtroSeguranca;
+    private final EntryPointNaoAutorizado entryPointNaoAutorizado;
 
-    public SecurityConfig(FiltroSeguranca filtroSeguranca) {
+    public SecurityConfig(FiltroSeguranca filtroSeguranca, EntryPointNaoAutorizado entryPointNaoAutorizado) {
         this.filtroSeguranca = filtroSeguranca;
+        this.entryPointNaoAutorizado = entryPointNaoAutorizado;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ← CORS habilitado
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(entryPointNaoAutorizado)
+                )
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
