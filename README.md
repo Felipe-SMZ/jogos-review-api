@@ -8,7 +8,7 @@
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
 ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
-![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Online-brightgreen?style=for-the-badge)
 
 ---
 
@@ -20,6 +20,16 @@ comentários para cada jogo.
 
 O projeto foi desenvolvido com foco em boas práticas de desenvolvimento backend, separação de responsabilidades em
 camadas, autenticação e autorização com Spring Security + JWT e documentação interativa via Swagger/OpenAPI.
+
+---
+
+## 🌐 API em Produção
+
+A API está disponível publicamente em:
+https://jogos-review-api-production.up.railway.app
+
+Documentação interativa (Swagger):
+https://jogos-review-api-production.up.railway.app/swagger-ui/index.html
 
 ---
 
@@ -37,6 +47,8 @@ camadas, autenticação e autorização com Spring Security + JWT e documentaç�
 | **MySQL**                   | Banco de dados relacional             |
 | **Maven**                   | Gerenciamento de dependências e build |
 | **Swagger / OpenAPI 2.8.8** | Documentação interativa da API        |
+| **Docker**                  | Containerização da aplicação          |
+| **Railway**                 | Hospedagem em nuvem                   |
 
 ---
 
@@ -143,14 +155,14 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 
 ### Controle de acesso por role
 
-| Ação                            | ROLE_USER  | ROLE_ADMIN |
-|---------------------------------|------------|------------|
-| Listar e buscar jogos           | ✅ público  | ✅ público  |
-| Cadastrar, editar, deletar jogo | ❌          | ✅          |
-| Criar review                    | ✅          | ✅          |
-| Atualizar própria review        | ✅          | ❌          |
-| Deletar própria review          | ✅          | ✅          |
-| Deletar review de outro usuário | ❌          | ✅          |
+| Ação                            | ROLE_USER | ROLE_ADMIN |
+|---------------------------------|-----------|------------|
+| Listar e buscar jogos           | ✅ público | ✅ público  |
+| Cadastrar, editar, deletar jogo | ❌         | ✅          |
+| Criar review                    | ✅         | ✅          |
+| Atualizar própria review        | ✅         | ❌          |
+| Deletar própria review          | ✅         | ✅          |
+| Deletar review de outro usuário | ❌         | ✅          |
 
 ### Como testar no Swagger
 
@@ -203,12 +215,12 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 
 ### ⭐ Reviews
 
-| Método   | Endpoint              | Descrição                                        | Acesso        |
-|----------|-----------------------|--------------------------------------------------|---------------|
-| `POST`   | `/jogos/{id}/reviews` | Cria uma review para um jogo                     | USER ou ADMIN |
-| `GET`    | `/jogos/{id}/reviews` | Lista as reviews de um jogo (com paginação)      | Público       |
-| `PUT`    | `/reviews/{id}`       | Atualiza nota e/ou comentário de uma review      | Dono          |
-| `DELETE` | `/reviews/{id}`       | Remove uma review pelo ID                        | Dono ou ADMIN |
+| Método   | Endpoint              | Descrição                                   | Acesso        |
+|----------|-----------------------|---------------------------------------------|---------------|
+| `POST`   | `/jogos/{id}/reviews` | Cria uma review para um jogo                | USER ou ADMIN |
+| `GET`    | `/jogos/{id}/reviews` | Lista as reviews de um jogo (com paginação) | Público       |
+| `PUT`    | `/reviews/{id}`       | Atualiza nota e/ou comentário de uma review | Dono          |
+| `DELETE` | `/reviews/{id}`       | Remove uma review pelo ID                   | Dono ou ADMIN |
 
 ### 📊 Estatísticas
 
@@ -386,18 +398,18 @@ O projeto conta com testes unitários e de integração cobrindo as principais r
 
 ### Testes Unitários — JUnit 5 + Mockito
 
-| Classe             | Cobertura                                                       |
-|--------------------|-----------------------------------------------------------------|
-| `JogoServiceTest`  | salvar, buscar, atualizar, excluir e média de notas             |
-| `ReviewServiceTest`| salvar, deletar e atualizar com controle de permissão           |
-| `TokenServiceTest` | geração e validação de tokens JWT                               |
+| Classe              | Cobertura                                             |
+|---------------------|-------------------------------------------------------|
+| `JogoServiceTest`   | salvar, buscar, atualizar, excluir e média de notas   |
+| `ReviewServiceTest` | salvar, deletar e atualizar com controle de permissão |
+| `TokenServiceTest`  | geração e validação de tokens JWT                     |
 
 ### Testes de Integração — MockMvc + H2
 
-| Classe              | Cobertura                                                       |
-|---------------------|-----------------------------------------------------------------|
-| `JogoControllerIT`  | 9 testes cobrindo CRUD completo e controle de acesso            |
-| `ReviewControllerIT`| 11 testes cobrindo CRUD, permissões e validações                |
+| Classe               | Cobertura                                            |
+|----------------------|------------------------------------------------------|
+| `JogoControllerIT`   | 9 testes cobrindo CRUD completo e controle de acesso |
+| `ReviewControllerIT` | 11 testes cobrindo CRUD, permissões e validações     |
 
 ### Executar os testes
 
@@ -438,8 +450,10 @@ cd review-de-jogos
 **2. Configure o banco de dados**
 
 ```sql
-DROP DATABASE IF EXISTS review_jogos;
-CREATE DATABASE review_jogos;
+DROP
+DATABASE IF EXISTS review_jogos;
+CREATE
+DATABASE review_jogos;
 ```
 
 Crie o arquivo `src/main/resources/application.properties`:
@@ -463,13 +477,11 @@ mvn spring-boot:run
 **4. Crie os usuários iniciais via API**
 
 ```bash
-# Criar admin
-POST /auth/registrar
-{ "email": "admin@teste.com", "senha": "sua_senha", "role": "ROLE_ADMIN" }
 
 # Criar usuário comum
 POST /auth/registrar
-{ "email": "user@teste.com", "senha": "sua_senha", "role": "ROLE_USER" }
+{"email": "usuario@teste.com","senha": "12345678"}
+
 ```
 
 **5. Acesse a API**
@@ -496,6 +508,8 @@ http://localhost:8080
 - ✅ **Autorização por roles** com controle fino por endpoint
 - ✅ **Injeção de dependência por construtor** em todas as classes
 - ✅ **Testes unitários e de integração** com JUnit 5, Mockito e MockMvc
+- ✅ Containerização com Docker e Docker Compose
+- ✅ Deploy contínuo via Railway com CI/CD automático pelo GitHub
 
 ---
 
@@ -507,8 +521,9 @@ http://localhost:8080
 - [x] Autenticação e autorização com Spring Security + JWT
 - [x] Endpoint `PUT /reviews/{id}` para atualizar nota e comentário
 - [x] Testes unitários e de integração com JUnit e Mockito
-- [ ] Deploy em nuvem (Render, Railway ou AWS)
-- [ ] Containerização com Docker
+- [x] Deploy em nuvem (Railway)
+- [x] Containerização com Docker
+- [ ] Frontend em React + Vite
 
 ---
 
