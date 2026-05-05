@@ -12,6 +12,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -26,30 +31,46 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable()) // desabilita CSRF — APIs REST são stateless, não usam cookies de sessão
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // sem sessão no servidor
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ← CORS habilitado
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Públicos — qualquer um acessa
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/registrar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/jogos/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
 
-                        // Apenas ADMIN
                         .requestMatchers(HttpMethod.POST, "/jogos").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/jogos/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/jogos/**").hasAuthority("ROLE_ADMIN")
 
-                        // USER ou ADMIN autenticado
                         .requestMatchers(HttpMethod.POST, "/jogos/*/reviews").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/reviews/**").authenticated()
 
                         .anyRequest().authenticated()
                 )
-                // Adiciona o filtro JWT antes do filtro padrão de autenticação do Spring
                 .addFilterBefore(filtroSeguranca, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:5173",   // Vite em desenvolvimento
+                "http://localhost:3000",   // alternativa comum
+                "https://seu-frontend.vercel.app" // ← substituir quando o frontend estiver no ar
+        ));
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(false); // JWT vai no header, não em cookie
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     @Bean
@@ -62,5 +83,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-
-
