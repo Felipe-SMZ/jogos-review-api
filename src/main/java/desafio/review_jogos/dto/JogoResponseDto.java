@@ -9,7 +9,6 @@ public record JogoResponseDto(
         Long id,
         String nome,
         Genero genero,
-        Plataforma plataforma,
-        List<ReviewResponseDto> reviews
+        Plataforma plataforma
 ) {
 }

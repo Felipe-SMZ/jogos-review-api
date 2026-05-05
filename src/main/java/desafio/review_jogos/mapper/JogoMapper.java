@@ -13,8 +13,7 @@ public class JogoMapper {
                 jogo.getId(),
                 jogo.getNome(),
                 jogo.getGenero(),
-                jogo.getPlataforma(),
-                jogo.getReviews().stream().map(ReviewMapper::toResponse).toList()
+                jogo.getPlataforma()
         );
     }
 
