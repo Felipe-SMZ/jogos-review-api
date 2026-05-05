@@ -34,3 +34,4 @@ build/
 
 # Ignorar configurações locais e segredos
 src/main/resources/application.properties
+.env
