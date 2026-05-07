@@ -85,10 +85,6 @@ public class JogoService {
 
         Double media = reviewRepository.calcularMediaPorJogoId(id);
 
-        if (media == null) {
-            media = 0.0;
-        }
-
         return new MediaNotasResponseDto(
                 jogo.getId(),
                 jogo.getNome(),
