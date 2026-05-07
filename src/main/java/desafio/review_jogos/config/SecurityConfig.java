@@ -66,6 +66,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",   // Vite em desenvolvimento
                 "http://localhost:3000",   // alternativa comum
+                "https://jogos-review-api-production.up.railway.app/swagger-ui/index.html",
                 "https://seu-frontend.vercel.app" // ← substituir quando o frontend estiver no ar
         ));
 
