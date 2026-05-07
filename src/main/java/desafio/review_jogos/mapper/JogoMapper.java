@@ -25,20 +25,4 @@ public class JogoMapper {
                 dto.plataforma()
         );
     }
-
-    public static MediaNotasResponseDto toMediaDto(Jogo jogo) {
-        if (jogo == null) return null;
-
-        // Calcula a média usando Stream
-        Double media = jogo.getReviews().stream()
-                .mapToInt(Review::getNota)
-                .average()
-                .orElse(0.0);
-
-        return new MediaNotasResponseDto(
-                jogo.getId(),
-                jogo.getNome(),
-                media
-        );
-    }
 }

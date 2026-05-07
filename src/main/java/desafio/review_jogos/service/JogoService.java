@@ -10,6 +10,7 @@ import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.model.enums.Genero;
 import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.repository.JogoRepository;
+import desafio.review_jogos.repository.ReviewRepository;
 import desafio.review_jogos.specification.JogoSpecification;
 import org.springframework.data.domain.Page;       // ✅ import correto
 import org.springframework.data.domain.Pageable;   // ✅ import correto
@@ -20,9 +21,11 @@ import org.springframework.stereotype.Service;
 public class JogoService {
 
     private final JogoRepository jogoRepository;
+    private final ReviewRepository reviewRepository;
 
-    public JogoService(JogoRepository jogoRepository) {
+    public JogoService(JogoRepository jogoRepository, ReviewRepository reviewRepository) {
         this.jogoRepository = jogoRepository;
+        this.reviewRepository = reviewRepository;
     }
 
     public Jogo salvar(Jogo jogo) {
@@ -72,10 +75,25 @@ public class JogoService {
     }
 
     public MediaNotasResponseDto buscarMediaDoJogo(Long id) {
-        Jogo jogo = jogoRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + id + " não encontrado."));
 
-        return JogoMapper.toMediaDto(jogo);
+        Jogo jogo = jogoRepository.findById(id)
+                .orElseThrow(() ->
+                        new RecursoNaoEncontradoException(
+                                "Jogo com id " + id + " não encontrado."
+                        )
+                );
+
+        Double media = reviewRepository.calcularMediaPorJogoId(id);
+
+        if (media == null) {
+            media = 0.0;
+        }
+
+        return new MediaNotasResponseDto(
+                jogo.getId(),
+                jogo.getNome(),
+                media
+        );
     }
 
 
