@@ -10,6 +10,7 @@ import desafio.review_jogos.model.Review;
 import desafio.review_jogos.model.enums.Genero;
 import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.repository.JogoRepository;
+import desafio.review_jogos.repository.ReviewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,9 @@ class JogoServiceTest {
 
     @InjectMocks
     private JogoService jogoService;
+
+    @Mock
+    private ReviewRepository reviewRepository;
 
     private Jogo jogo;
 
@@ -158,24 +162,38 @@ class JogoServiceTest {
     @Test
     @DisplayName("buscarMediaDoJogo: deve calcular média corretamente")
     void buscarMediaDoJogo_sucesso() {
-        Review r1 = new Review(1L, 8, "Ótimo", jogo);
-        Review r2 = new Review(2L, 6, "Razoável", jogo);
-        jogo.setReviews(List.of(r1, r2));
 
-        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
+        when(jogoRepository.findById(1L))
+                .thenReturn(Optional.of(jogo));
 
-        MediaNotasResponseDto resultado = jogoService.buscarMediaDoJogo(1L);
+        when(reviewRepository.calcularMediaPorJogoId(1L))
+                .thenReturn(7.0);
 
-        assertThat(resultado.notas()).isEqualTo(7.0);
+        MediaNotasResponseDto resultado =
+                jogoService.buscarMediaDoJogo(1L);
+
+        assertThat(resultado.media()).isEqualTo(7.0);
+
+        verify(reviewRepository)
+                .calcularMediaPorJogoId(1L);
     }
 
     @Test
     @DisplayName("buscarMediaDoJogo: deve retornar 0.0 quando jogo não tem reviews")
     void buscarMediaDoJogo_semReviews() {
-        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
 
-        MediaNotasResponseDto resultado = jogoService.buscarMediaDoJogo(1L);
+        when(jogoRepository.findById(1L))
+                .thenReturn(Optional.of(jogo));
 
-        assertThat(resultado.notas()).isEqualTo(0.0);
+        when(reviewRepository.calcularMediaPorJogoId(1L))
+                .thenReturn(null);
+
+        MediaNotasResponseDto resultado =
+                jogoService.buscarMediaDoJogo(1L);
+
+        assertThat(resultado.media()).isEqualTo(0.0);
+
+        verify(reviewRepository)
+                .calcularMediaPorJogoId(1L);
     }
 }
