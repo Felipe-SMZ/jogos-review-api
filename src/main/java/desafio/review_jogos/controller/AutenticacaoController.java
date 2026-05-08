@@ -3,11 +3,9 @@ package desafio.review_jogos.controller;
 import desafio.review_jogos.dto.LoginRequestDto;
 import desafio.review_jogos.dto.LoginResponseDto;
 import desafio.review_jogos.dto.UsuarioRequestDto;
-import desafio.review_jogos.exception.RecursoJaExisteException;
 import desafio.review_jogos.model.Usuario;
-import desafio.review_jogos.model.enums.Role;
-import desafio.review_jogos.repository.UsuarioRepository;
 import desafio.review_jogos.service.TokenService;
+import desafio.review_jogos.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,18 +28,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class AutenticacaoController {
 
     private final AuthenticationManager authenticationManager;
-    private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final UsuarioService usuarioService;
 
     public AutenticacaoController(AuthenticationManager authenticationManager,
-                                  UsuarioRepository usuarioRepository,
-                                  PasswordEncoder passwordEncoder,
-                                  TokenService tokenService) {
+                                  TokenService tokenService,
+                                  UsuarioService usuarioService) {
         this.authenticationManager = authenticationManager;
-        this.usuarioRepository = usuarioRepository;
-        this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
+        this.usuarioService = usuarioService;
     }
 
     @Operation(
@@ -78,16 +72,7 @@ public class AutenticacaoController {
     })
     @PostMapping("/registrar")
     public ResponseEntity<Void> registrar(@RequestBody @Valid UsuarioRequestDto dto) {
-        if (usuarioRepository.findByEmail(dto.email()).isPresent()) {
-            throw new RecursoJaExisteException("E-mail já cadastrado");
-        }
-
-        var usuario = new Usuario();
-        usuario.setEmail(dto.email());
-        usuario.setSenha(passwordEncoder.encode(dto.senha()));
-        usuario.setRole(Role.ROLE_USER);
-
-        usuarioRepository.save(usuario);
+        usuarioService.cadastrarUsuario(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

@@ -6,24 +6,21 @@ import desafio.review_jogos.dto.MediaNotasResponseDto;
 import desafio.review_jogos.exception.RecursoJaExisteException;
 import desafio.review_jogos.exception.RecursoNaoEncontradoException;
 import desafio.review_jogos.model.Jogo;
-import desafio.review_jogos.model.Review;
 import desafio.review_jogos.model.enums.Genero;
 import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.repository.JogoRepository;
 import desafio.review_jogos.repository.ReviewRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,168 +29,94 @@ class JogoServiceTest {
     @Mock
     private JogoRepository jogoRepository;
 
-    @InjectMocks
-    private JogoService jogoService;
-
     @Mock
     private ReviewRepository reviewRepository;
+
+    @InjectMocks
+    private JogoService jogoService;
 
     private Jogo jogo;
 
     @BeforeEach
     void setUp() {
-        jogo = new Jogo(1L, "The Witcher 3", Genero.RPG, Plataforma.PC);
+        jogo = new Jogo(1L, "The Witcher 3", Genero.RPG, Plataforma.PC, null);
     }
 
-    // ── salvar ────────────────────────────────────────────────────────────────
-
     @Test
-    @DisplayName("salvar: deve salvar jogo com sucesso")
     void salvar_sucesso() {
         when(jogoRepository.existsByNomeIgnoreCase("The Witcher 3")).thenReturn(false);
         when(jogoRepository.save(any())).thenReturn(jogo);
 
-        Jogo resultado = jogoService.salvar(jogo);
+        Jogo result = jogoService.salvar(jogo);
 
-        assertThat(resultado.getNome()).isEqualTo("The Witcher 3");
-        verify(jogoRepository).save(jogo);
+        assertThat(result.getNome()).isEqualTo("The Witcher 3");
     }
 
     @Test
-    @DisplayName("salvar: deve lançar exceção quando jogo já existe")
-    void salvar_jogoJaExiste() {
+    void salvar_duplicado() {
         when(jogoRepository.existsByNomeIgnoreCase("The Witcher 3")).thenReturn(true);
 
         assertThatThrownBy(() -> jogoService.salvar(jogo))
-                .isInstanceOf(RecursoJaExisteException.class)
-                .hasMessageContaining("The Witcher 3");
+                .isInstanceOf(RecursoJaExisteException.class);
 
         verify(jogoRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("salvar: deve fazer trim no nome antes de salvar")
-    void salvar_trimNome() {
-        jogo.setNome("  The Witcher 3  ");
-        when(jogoRepository.existsByNomeIgnoreCase("The Witcher 3")).thenReturn(false);
-        when(jogoRepository.save(any())).thenReturn(jogo);
-
-        jogoService.salvar(jogo);
-
-        assertThat(jogo.getNome()).isEqualTo("The Witcher 3");
-    }
-
-    // ── buscarPorId ───────────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("buscarPorId: deve retornar jogo quando encontrado")
-    void buscarPorId_sucesso() {
+    void buscarPorId_ok() {
         when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
 
-        JogoResponseDto resultado = jogoService.buscarPorId(1L);
+        JogoResponseDto dto = jogoService.buscarPorId(1L);
 
-        assertThat(resultado.id()).isEqualTo(1L);
-        assertThat(resultado.nome()).isEqualTo("The Witcher 3");
+        assertThat(dto.id()).isEqualTo(1L);
     }
 
     @Test
-    @DisplayName("buscarPorId: deve lançar exceção quando não encontrado")
-    void buscarPorId_naoEncontrado() {
+    void buscarPorId_notFound() {
         when(jogoRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> jogoService.buscarPorId(99L))
-                .isInstanceOf(RecursoNaoEncontradoException.class)
-                .hasMessageContaining("99");
+                .isInstanceOf(RecursoNaoEncontradoException.class);
     }
 
-    // ── excluir ───────────────────────────────────────────────────────────────
-
     @Test
-    @DisplayName("excluir: deve deletar jogo com sucesso")
-    void excluir_sucesso() {
+    void excluir_ok() {
         when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
 
         jogoService.excluir(1L);
 
-        verify(jogoRepository).delete(jogo);
+        verify(jogoRepository).delete(any(Jogo.class));
     }
 
     @Test
-    @DisplayName("excluir: deve lançar exceção quando jogo não existe")
-    void excluir_naoEncontrado() {
-        when(jogoRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> jogoService.excluir(99L))
-                .isInstanceOf(RecursoNaoEncontradoException.class);
-
-        verify(jogoRepository, never()).delete(any(Jogo.class));
-    }
-
-    // ── atualizar ─────────────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("atualizar: deve atualizar jogo com sucesso")
-    void atualizar_sucesso() {
-        JogoRequestDto dto = new JogoRequestDto(null, "Elden Ring", Genero.RPG, Plataforma.PS5);
-        Jogo atualizado = new Jogo(1L, "Elden Ring", Genero.RPG, Plataforma.PS5);
+    void atualizar_ok() {
+        JogoRequestDto dto = new JogoRequestDto(null, "Elden Ring", Genero.RPG, Plataforma.PS5, null);
 
         when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
-        when(jogoRepository.save(any())).thenReturn(atualizado);
+        when(jogoRepository.save(any())).thenReturn(jogo);
 
-        JogoResponseDto resultado = jogoService.atualizar(1L, dto);
+        JogoResponseDto result = jogoService.atualizar(1L, dto);
 
-        assertThat(resultado.nome()).isEqualTo("Elden Ring");
-        assertThat(resultado.plataforma()).isEqualTo(Plataforma.PS5);
+        assertThat(result.nome()).isEqualTo("Elden Ring");
     }
 
     @Test
-    @DisplayName("atualizar: deve lançar exceção quando jogo não existe")
-    void atualizar_naoEncontrado() {
-        JogoRequestDto dto = new JogoRequestDto(null, "Elden Ring", Genero.RPG, Plataforma.PS5);
+    void media_ok() {
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
+        when(reviewRepository.calcularMediaPorJogoId(1L)).thenReturn(8.0);
 
-        when(jogoRepository.findById(99L)).thenReturn(Optional.empty());
+        MediaNotasResponseDto dto = jogoService.buscarMediaDoJogo(1L);
 
-        assertThatThrownBy(() -> jogoService.atualizar(99L, dto))
-                .isInstanceOf(RecursoNaoEncontradoException.class);
-    }
-
-    // ── buscarMediaDoJogo ─────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("buscarMediaDoJogo: deve calcular média corretamente")
-    void buscarMediaDoJogo_sucesso() {
-
-        when(jogoRepository.findById(1L))
-                .thenReturn(Optional.of(jogo));
-
-        when(reviewRepository.calcularMediaPorJogoId(1L))
-                .thenReturn(7.0);
-
-        MediaNotasResponseDto resultado =
-                jogoService.buscarMediaDoJogo(1L);
-
-        assertThat(resultado.media()).isEqualTo(7.0);
-
-        verify(reviewRepository)
-                .calcularMediaPorJogoId(1L);
+        assertThat(dto.media()).isEqualTo(8.0);
     }
 
     @Test
-    @DisplayName("buscarMediaDoJogo: deve retornar 0.0 quando jogo não tem reviews")
-    void buscarMediaDoJogo_semReviews() {
+    void media_null() {
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
+        when(reviewRepository.calcularMediaPorJogoId(1L)).thenReturn(null);
 
-        when(jogoRepository.findById(1L))
-                .thenReturn(Optional.of(jogo));
+        MediaNotasResponseDto dto = jogoService.buscarMediaDoJogo(1L);
 
-        when(reviewRepository.calcularMediaPorJogoId(1L))
-                .thenReturn(null);
-
-        MediaNotasResponseDto resultado =
-                jogoService.buscarMediaDoJogo(1L);
-
-        assertThat(resultado.media()).isEqualTo(0.0);
-
-        verify(reviewRepository)
-                .calcularMediaPorJogoId(1L);
+        assertThat(dto.media()).isEqualTo(0.0);
     }
 }

@@ -13,16 +13,20 @@ public class JogoMapper {
                 jogo.getId(),
                 jogo.getNome(),
                 jogo.getGenero(),
-                jogo.getPlataforma()
+                jogo.getPlataforma(),
+                jogo.getImageUrl(),
+                jogo.getCreatedAt(),
+                jogo.getUpdatedAt()
         );
     }
 
     public static Jogo toEntity(JogoRequestDto dto) {
-        return new Jogo(
-                dto.id(),
-                dto.nome(),
-                dto.genero(),
-                dto.plataforma()
-        );
+        Jogo jogo = new Jogo();
+        jogo.setId(dto.id());
+        jogo.setNome(dto.nome());
+        jogo.setGenero(dto.genero());
+        jogo.setPlataforma(dto.plataforma());
+        jogo.setImageUrl(dto.imageUrl());
+        return jogo;
     }
 }

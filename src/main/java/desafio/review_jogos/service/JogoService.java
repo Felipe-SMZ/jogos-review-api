@@ -88,7 +88,7 @@ public class JogoService {
         return new MediaNotasResponseDto(
                 jogo.getId(),
                 jogo.getNome(),
-                media
+                media != null ? media : 0.0
         );
     }
 

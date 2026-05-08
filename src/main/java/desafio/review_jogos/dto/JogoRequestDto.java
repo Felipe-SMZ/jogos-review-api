@@ -21,6 +21,8 @@ public record JogoRequestDto(
         Genero genero,
 
         @NotNull(message = "A plataforma do jogo é obrigatória")
-        Plataforma plataforma
+        Plataforma plataforma,
+
+        String imageUrl
 ) {
 }
