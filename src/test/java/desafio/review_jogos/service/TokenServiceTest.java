@@ -2,9 +2,8 @@ package desafio.review_jogos.service;
 
 import desafio.review_jogos.model.Usuario;
 import desafio.review_jogos.model.enums.Role;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import org.junit.jupiter.api.*;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.*;
@@ -17,13 +16,17 @@ class TokenServiceTest {
     @BeforeEach
     void setUp() {
         tokenService = new TokenService();
-        // injeta o @Value manualmente nos testes unitários
-        ReflectionTestUtils.setField(tokenService, "secret", "segredo-de-teste-unitario-123");
-        usuario = new Usuario(1L, "user@email.com", "hash", Role.ROLE_USER);
+        ReflectionTestUtils.setField(tokenService, "secret", "segredo-teste");
+
+        usuario = new Usuario();
+        usuario.setId(1L);
+        usuario.setEmail("user@email.com");
+        usuario.setNickname("user");
+        usuario.setSenha("hash");
+        usuario.setRole(Role.ROLE_USER);
     }
 
     @Test
-    @DisplayName("gerarToken: deve gerar token não nulo e não vazio")
     void gerarToken_sucesso() {
         String token = tokenService.gerarToken(usuario);
 
@@ -31,30 +34,29 @@ class TokenServiceTest {
     }
 
     @Test
-    @DisplayName("validarToken: deve retornar o email do usuário")
-    void validarToken_retornaEmail() {
+    void validarToken_sucesso() {
         String token = tokenService.gerarToken(usuario);
+
         String email = tokenService.validarToken(token);
 
         assertThat(email).isEqualTo("user@email.com");
     }
 
     @Test
-    @DisplayName("validarToken: deve lançar exceção para token inválido")
-    void validarToken_tokenInvalido() {
-        assertThatThrownBy(() -> tokenService.validarToken("token.invalido.aqui"))
-                .isInstanceOf(Exception.class);
+    void validarToken_invalido() {
+        assertThatThrownBy(() ->
+                tokenService.validarToken("token.invalido"))
+                .isInstanceOf(JWTVerificationException.class);
     }
 
     @Test
-    @DisplayName("validarToken: deve lançar exceção para token de outro secret")
     void validarToken_secretDiferente() {
         String token = tokenService.gerarToken(usuario);
 
-        TokenService outroService = new TokenService();
-        ReflectionTestUtils.setField(outroService, "secret", "outro-secret-diferente");
+        TokenService outro = new TokenService();
+        ReflectionTestUtils.setField(outro, "secret", "outro-secret");
 
-        assertThatThrownBy(() -> outroService.validarToken(token))
-                .isInstanceOf(Exception.class);
+        assertThatThrownBy(() -> outro.validarToken(token))
+                .isInstanceOf(JWTVerificationException.class);
     }
 }

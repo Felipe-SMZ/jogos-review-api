@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @Service
 public class TokenService {
@@ -22,9 +20,10 @@ public class TokenService {
         Algorithm algorithm = Algorithm.HMAC256(secret);
 
         return JWT.create()
-                .withIssuer("review-jogos-api")       // identifica quem emitiu o token
-                .withSubject(usuario.getEmail())        // "dono" do token
-                .withClaim("role", usuario.getRole().name()) // dado extra no payload
+                .withIssuer("review-jogos-api")
+                .withSubject(usuario.getEmail())
+                .withClaim("id", usuario.getId())
+                .withClaim("role", usuario.getRole().name())
                 .withExpiresAt(dataExpiracao())
                 .sign(algorithm);
     }
@@ -38,11 +37,10 @@ public class TokenService {
                 .build()
                 .verify(token)          // ← lança JWTVerificationException se inválido
                 .getSubject();
+
     }
 
     private Instant dataExpiracao() {
-        return LocalDateTime.now()
-                .plusHours(EXPIRACAO_HORAS)
-                .toInstant(ZoneOffset.of("-03:00"));
+        return Instant.now().plusSeconds(EXPIRACAO_HORAS * 3600);
     }
 }
