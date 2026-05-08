@@ -7,21 +7,19 @@ import desafio.review_jogos.model.Review;
 public class ReviewMapper {
 
     public static ReviewResponseDto toResponse(Review review) {
-        if (review == null) return null;
-
         return new ReviewResponseDto(
                 review.getId(),
                 review.getNota(),
                 review.getComentario(),
-                review.getJogo() != null ? review.getJogo().getId() : null
+                review.getJogo() != null ? review.getJogo().getId() : null,
+                review.getUsuario() != null ? review.getUsuario().getNickname() : null,
+                review.getCreatedAt()
         );
     }
 
     public static Review toEntity(ReviewRequestDto dto) {
-        if (dto == null) return null;
-
         Review review = new Review();
-        review.setNota(dto.nota());       // ✅ removido dto.id() e dto.jogoId()
+        review.setNota(dto.nota());
         review.setComentario(dto.comentario());
         return review;
     }

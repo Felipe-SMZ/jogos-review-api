@@ -3,12 +3,16 @@ package desafio.review_jogos.dto;
 import desafio.review_jogos.model.enums.Genero;
 import desafio.review_jogos.model.enums.Plataforma;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record JogoResponseDto(
         Long id,
         String nome,
         Genero genero,
-        Plataforma plataforma
+        Plataforma plataforma,
+        String imageUrl,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }

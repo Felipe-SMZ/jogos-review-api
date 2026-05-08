@@ -30,6 +30,7 @@ public class AdminSeeder implements CommandLineRunner {
         if (usuarioRepository.findByEmail(adminEmail).isEmpty()) {
             Usuario admin = new Usuario();
             admin.setEmail(adminEmail);
+            admin.setNickname("Admin");
             admin.setSenha(passwordEncoder.encode(adminSenha));
             admin.setRole(Role.ROLE_ADMIN);
             usuarioRepository.save(admin);

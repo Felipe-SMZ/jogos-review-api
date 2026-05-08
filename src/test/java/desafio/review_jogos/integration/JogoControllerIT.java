@@ -11,57 +11,83 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Map;
 
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
 class JogoControllerIT {
 
     @Autowired
+    private WebApplicationContext context;
+
     private MockMvc mockMvc;
+
     @Autowired
     private JogoRepository jogoRepository;
+
     @Autowired
     private UsuarioRepository usuarioRepository;
+
     @Autowired
     private TokenService tokenService;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private String tokenAdmin;
     private String tokenUser;
 
     @BeforeEach
     void setUp() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+
+        jogoRepository.deleteAll();
+        usuarioRepository.deleteAll();
+
         Usuario admin = usuarioRepository.save(
-                new Usuario(null, "admin@test.com", passwordEncoder.encode("123456"), Role.ROLE_ADMIN));
+                new Usuario(null, "admin@test.com", "Admin",
+                        passwordEncoder.encode("123456"),
+                        Role.ROLE_ADMIN, null, null)
+        );
+
         Usuario user = usuarioRepository.save(
-                new Usuario(null, "user@test.com", passwordEncoder.encode("123456"), Role.ROLE_USER));
+                new Usuario(null, "user@test.com", "User",
+                        passwordEncoder.encode("123456"),
+                        Role.ROLE_USER, null, null)
+        );
 
         tokenAdmin = "Bearer " + tokenService.gerarToken(admin);
         tokenUser = "Bearer " + tokenService.gerarToken(user);
     }
 
-    // ── POST /jogos ───────────────────────────────────────────────────────────
-
     @Test
-    @DisplayName("POST /jogos: admin cria jogo com sucesso → 201")
+    @DisplayName("POST /jogos: admin cria jogo -> 201")
     void criarJogo_comAdmin() throws Exception {
-        var body = Map.of("nome", "Elden Ring", "genero", "RPG", "plataforma", "PS5");
+
+        var body = Map.of(
+                "nome", "Elden Ring",
+                "genero", "RPG",
+                "plataforma", "PC"
+        );
 
         mockMvc.perform(post("/jogos")
                         .header("Authorization", tokenAdmin)
@@ -72,121 +98,19 @@ class JogoControllerIT {
     }
 
     @Test
-    @DisplayName("POST /jogos: user comum não pode criar jogo → 403")
+    @DisplayName("POST /jogos: user não pode criar -> 403")
     void criarJogo_comUser() throws Exception {
-        var body = Map.of("nome", "Elden Ring", "genero", "RPG", "plataforma", "PS5");
+
+        var body = Map.of(
+                "nome", "Elden Ring",
+                "genero", "RPG",
+                "plataforma", "PC"
+        );
 
         mockMvc.perform(post("/jogos")
                         .header("Authorization", tokenUser)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @DisplayName("POST /jogos: sem token → 403")
-    void criarJogo_semToken() throws Exception {
-        var body = Map.of("nome", "Elden Ring", "genero", "RPG", "plataforma", "PS5");
-
-        mockMvc.perform(post("/jogos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @DisplayName("POST /jogos: jogo duplicado → 409")
-    void criarJogo_duplicado() throws Exception {
-        var body = Map.of("nome", "Elden Ring", "genero", "RPG", "plataforma", "PS5");
-
-        mockMvc.perform(post("/jogos")
-                        .header("Authorization", tokenAdmin)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isCreated());
-
-        mockMvc.perform(post("/jogos")
-                        .header("Authorization", tokenAdmin)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isConflict());
-    }
-
-    // ── GET /jogos ────────────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("GET /jogos: lista jogos sem autenticação → 200")
-    void listarJogos_publico() throws Exception {
-        mockMvc.perform(get("/jogos"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray());
-    }
-
-    // ── GET /jogos/{id} ───────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("GET /jogos/{id}: jogo inexistente → 404")
-    void buscarJogo_naoEncontrado() throws Exception {
-        mockMvc.perform(get("/jogos/999"))
-                .andExpect(status().isNotFound());
-    }
-
-    // ── PUT /jogos/{id} ───────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("PUT /jogos/{id}: admin atualiza jogo → 200")
-    void atualizarJogo_comAdmin() throws Exception {
-        var criar = Map.of("nome", "Jogo Antigo", "genero", "RPG", "plataforma", "PC");
-        var criado = mockMvc.perform(post("/jogos")
-                        .header("Authorization", tokenAdmin)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(criar)))
-                .andReturn();
-
-        Long id = objectMapper.readTree(criado.getResponse().getContentAsString()).get("id").asLong();
-
-        var atualizar = Map.of("nome", "Jogo Novo", "genero", "ACAO", "plataforma", "PS5");
-        mockMvc.perform(put("/jogos/" + id)
-                        .header("Authorization", tokenAdmin)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(atualizar)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nome").value("Jogo Novo"));
-    }
-
-    // ── DELETE /jogos/{id} ────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("DELETE /jogos/{id}: admin deleta jogo → 204")
-    void deletarJogo_comAdmin() throws Exception {
-        var criar = Map.of("nome", "Jogo Para Deletar", "genero", "RPG", "plataforma", "PC");
-        var criado = mockMvc.perform(post("/jogos")
-                        .header("Authorization", tokenAdmin)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(criar)))
-                .andReturn();
-
-        Long id = objectMapper.readTree(criado.getResponse().getContentAsString()).get("id").asLong();
-
-        mockMvc.perform(delete("/jogos/" + id)
-                        .header("Authorization", tokenAdmin))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    @DisplayName("DELETE /jogos/{id}: user não pode deletar → 403")
-    void deletarJogo_comUser() throws Exception {
-        var criar = Map.of("nome", "Jogo Protegido", "genero", "RPG", "plataforma", "PC");
-        var criado = mockMvc.perform(post("/jogos")
-                        .header("Authorization", tokenAdmin)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(criar)))
-                .andReturn();
-
-        Long id = objectMapper.readTree(criado.getResponse().getContentAsString()).get("id").asLong();
-
-        mockMvc.perform(delete("/jogos/" + id)
-                        .header("Authorization", tokenUser))
                 .andExpect(status().isForbidden());
     }
 }

@@ -26,17 +26,6 @@ public class ReviewService {
         this.jogoRepository = jogoRepository;
     }
 
-//    public ReviewResponseDto salvar(Long jogoId, ReviewRequestDto dto, Usuario usuarioAutenticado) {
-//        Jogo jogo = jogoRepository.findById(jogoId)
-//                .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + jogoId + " não encontrado."));
-//
-//        Review review = ReviewMapper.toEntity(dto);
-//        review.setJogo(jogo);
-//        review.setUsuario(usuarioAutenticado); // ← associa o dono da review
-//
-//        return ReviewMapper.toResponse(reviewRepository.save(review));
-//    }
-
     public ReviewResponseDto salvar(Long jogoId, ReviewRequestDto dto, Usuario usuarioAutenticado) {
         Jogo jogo = jogoRepository.findById(jogoId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + jogoId + " não encontrado."));
