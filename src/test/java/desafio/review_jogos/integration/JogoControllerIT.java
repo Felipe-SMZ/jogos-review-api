@@ -47,8 +47,7 @@ class JogoControllerIT {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private String tokenAdmin;
     private String tokenUser;
@@ -64,13 +63,13 @@ class JogoControllerIT {
         usuarioRepository.deleteAll();
 
         Usuario admin = usuarioRepository.save(
-                new Usuario(null, "admin@test.com", "Admin",
+                new Usuario(null, "admin@test.com", "AdminTest",
                         passwordEncoder.encode("123456"),
                         Role.ROLE_ADMIN, null, null)
         );
 
         Usuario user = usuarioRepository.save(
-                new Usuario(null, "user@test.com", "User",
+                new Usuario(null, "user@test.com", "UserTest",
                         passwordEncoder.encode("123456"),
                         Role.ROLE_USER, null, null)
         );

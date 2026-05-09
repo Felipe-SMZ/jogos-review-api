@@ -3,6 +3,8 @@ package desafio.review_jogos.controller;
 import desafio.review_jogos.dto.LoginRequestDto;
 import desafio.review_jogos.dto.LoginResponseDto;
 import desafio.review_jogos.dto.UsuarioRequestDto;
+import desafio.review_jogos.dto.UsuarioResponseDto;
+import desafio.review_jogos.mapper.UsuarioMapper;
 import desafio.review_jogos.model.Usuario;
 import desafio.review_jogos.service.TokenService;
 import desafio.review_jogos.service.UsuarioService;
@@ -16,11 +18,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -53,10 +54,14 @@ public class AutenticacaoController {
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto dto) {
-        var autenticacao = new UsernamePasswordAuthenticationToken(dto.email(), dto.senha());
-        var auth = authenticationManager.authenticate(autenticacao);
-        var token = tokenService.gerarToken((Usuario) auth.getPrincipal());
-        return ResponseEntity.ok(new LoginResponseDto(token));
+        try {
+            var autenticacao = new UsernamePasswordAuthenticationToken(dto.email(), dto.senha());
+            var auth = authenticationManager.authenticate(autenticacao);
+            var token = tokenService.gerarToken((Usuario) auth.getPrincipal());
+            return ResponseEntity.ok(new LoginResponseDto(token));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @Operation(
@@ -74,5 +79,13 @@ public class AutenticacaoController {
     public ResponseEntity<Void> registrar(@RequestBody @Valid UsuarioRequestDto dto) {
         usuarioService.cadastrarUsuario(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Operation(summary = "Retorna os dados do usuário autenticado")
+    @ApiResponse(responseCode = "200", description = "Dados retornados com sucesso")
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioResponseDto> me(
+            @AuthenticationPrincipal Usuario usuario) {
+        return ResponseEntity.ok(UsuarioMapper.toResponse(usuario));
     }
 }

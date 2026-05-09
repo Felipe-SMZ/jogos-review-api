@@ -43,8 +43,8 @@ public class JogoController {
             @ApiResponse(responseCode = "400", description = "Dados inválidos")
     })
     @PostMapping
-    public ResponseEntity<JogoResponseDto> inserirJogo(@Validated @RequestBody Jogo jogo) {
-        Jogo jogoCadastrado = jogoService.salvar(jogo);
+    public ResponseEntity<JogoResponseDto> inserirJogo(@Validated @RequestBody JogoRequestDto dto) {
+        Jogo jogoCadastrado = jogoService.salvar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(JogoMapper.toResponse(jogoCadastrado));
     }
 

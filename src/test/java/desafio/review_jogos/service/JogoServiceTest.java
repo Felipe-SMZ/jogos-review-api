@@ -37,9 +37,12 @@ class JogoServiceTest {
 
     private Jogo jogo;
 
+    private JogoRequestDto jogoDto;
+
     @BeforeEach
     void setUp() {
         jogo = new Jogo(1L, "The Witcher 3", Genero.RPG, Plataforma.PC, null);
+        jogoDto = new JogoRequestDto(null, "The Witcher 3", Genero.RPG, Plataforma.PC, null);
     }
 
     @Test
@@ -47,7 +50,7 @@ class JogoServiceTest {
         when(jogoRepository.existsByNomeIgnoreCase("The Witcher 3")).thenReturn(false);
         when(jogoRepository.save(any())).thenReturn(jogo);
 
-        Jogo result = jogoService.salvar(jogo);
+        Jogo result = jogoService.salvar(jogoDto);
 
         assertThat(result.getNome()).isEqualTo("The Witcher 3");
     }
@@ -56,7 +59,7 @@ class JogoServiceTest {
     void salvar_duplicado() {
         when(jogoRepository.existsByNomeIgnoreCase("The Witcher 3")).thenReturn(true);
 
-        assertThatThrownBy(() -> jogoService.salvar(jogo))
+        assertThatThrownBy(() -> jogoService.salvar(jogoDto))
                 .isInstanceOf(RecursoJaExisteException.class);
 
         verify(jogoRepository, never()).save(any());

@@ -8,6 +8,6 @@ import jakarta.validation.constraints.Size;
 public record UsuarioRequestDto(
         @NotBlank @Email String email,
         @NotBlank @Size(min = 3, max = 30) String nickname,
-        @NotBlank @Size(min = 6) String senha
+        @NotBlank @Size(min = 8) String senha
 ) {
 }

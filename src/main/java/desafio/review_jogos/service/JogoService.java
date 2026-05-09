@@ -12,10 +12,11 @@ import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.repository.JogoRepository;
 import desafio.review_jogos.repository.ReviewRepository;
 import desafio.review_jogos.specification.JogoSpecification;
-import org.springframework.data.domain.Page;       // ✅ import correto
-import org.springframework.data.domain.Pageable;   // ✅ import correto
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class JogoService {
@@ -28,18 +29,21 @@ public class JogoService {
         this.reviewRepository = reviewRepository;
     }
 
-    public Jogo salvar(Jogo jogo) {
+    @Transactional
+    public Jogo salvar(JogoRequestDto dto) {
         //o trim para tirar espacos extras
-        String nomeLimpo = jogo.getNome().trim();
+        String nomeLimpo = dto.nome().trim();
 
         if (jogoRepository.existsByNomeIgnoreCase(nomeLimpo)) {
             throw new RecursoJaExisteException("O jogo '" + nomeLimpo + "' já existe.");
         }
 
+        Jogo jogo = JogoMapper.toEntity(dto);
         jogo.setNome(nomeLimpo);
         return jogoRepository.save(jogo);
     }
 
+    @Transactional(readOnly = true)
     public Page<JogoResponseDto> buscarTodos(Genero genero, Plataforma plataforma, Pageable pageable) {
 
         Specification<Jogo> spec = Specification
@@ -50,12 +54,14 @@ public class JogoService {
                 .map(JogoMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public JogoResponseDto buscarPorId(Long id) {
         return jogoRepository.findById(id)
                 .map(JogoMapper::toResponse)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + id + " não encontrado."));
     }
 
+    @Transactional
     public void excluir(Long id) {
         Jogo jogoExiste = jogoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + id + " não encontrado."));
@@ -63,17 +69,28 @@ public class JogoService {
         jogoRepository.delete(jogoExiste);
     }
 
+    @Transactional
     public JogoResponseDto atualizar(Long id, JogoRequestDto dto) {
         Jogo jogo = jogoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Jogo com id " + id + " não encontrado."));
 
-        jogo.setNome(dto.nome());
+        String novoNome = dto.nome().trim();
+        if (!jogo.getNome().equalsIgnoreCase(novoNome)
+                && jogoRepository.existsByNomeIgnoreCase(novoNome)) {
+            throw new RecursoJaExisteException("O jogo '" + novoNome + "' já existe.");
+        }
+
+        jogo.setNome(novoNome);
         jogo.setGenero(dto.genero());
         jogo.setPlataforma(dto.plataforma());
+        if (dto.imageUrl() != null) {
+            jogo.setImageUrl(dto.imageUrl());
+        }
 
         return JogoMapper.toResponse(jogoRepository.save(jogo));
     }
 
+    @Transactional(readOnly = true)
     public MediaNotasResponseDto buscarMediaDoJogo(Long id) {
 
         Jogo jogo = jogoRepository.findById(id)

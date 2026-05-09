@@ -13,8 +13,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-// config/FiltroSeguranca.java
-
 @Component
 public class FiltroSeguranca extends OncePerRequestFilter {
 
@@ -35,20 +33,23 @@ public class FiltroSeguranca extends OncePerRequestFilter {
         var token = extrairToken(request);
 
         if (token != null) {
-            var email = tokenService.validarToken(token); // valida e extrai o email
-            var usuario = usuarioRepository.findByEmail(email)
-                    .orElseThrow(); // usuário deve existir se o token é válido
+            try {
+                var email = tokenService.validarToken(token);
+                var usuario = usuarioRepository.findByEmail(email)
+                        .orElseThrow();
 
-            // Registra o usuário autenticado no contexto do Spring Security
-            var authentication = new UsernamePasswordAuthenticationToken(
-                    usuario,
-                    null,
-                    usuario.getAuthorities() // ← as roles vêm aqui
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                var authentication = new UsernamePasswordAuthenticationToken(
+                        usuario,
+                        null,
+                        usuario.getAuthorities()
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (Exception e) {
+                // token inválido ou expirado — segue sem autenticar, Spring Security retorna 401
+            }
         }
 
-        filterChain.doFilter(request, response); // continua a cadeia de filtros
+        filterChain.doFilter(request, response);
     }
 
     private String extrairToken(HttpServletRequest request) {

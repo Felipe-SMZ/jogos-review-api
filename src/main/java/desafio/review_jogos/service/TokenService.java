@@ -6,15 +6,17 @@ import desafio.review_jogos.model.Usuario;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+
 import java.time.Instant;
 
 @Service
 public class TokenService {
 
+    private static final Duration EXPIRACAO = Duration.ofHours(2);
+
     @Value("${api.security.token.secret}")
     private String secret;
-
-    private static final long EXPIRACAO_HORAS = 2;
 
     public String gerarToken(Usuario usuario) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -24,6 +26,7 @@ public class TokenService {
                 .withSubject(usuario.getEmail())
                 .withClaim("id", usuario.getId())
                 .withClaim("role", usuario.getRole().name())
+                .withClaim("nickname", usuario.getNickname())
                 .withExpiresAt(dataExpiracao())
                 .sign(algorithm);
     }
@@ -41,6 +44,6 @@ public class TokenService {
     }
 
     private Instant dataExpiracao() {
-        return Instant.now().plusSeconds(EXPIRACAO_HORAS * 3600);
+        return Instant.now().plus(EXPIRACAO);
     }
 }

@@ -79,31 +79,39 @@ src/main/java/desafio/review_jogos/
 
 ### 🎮 Jogo
 
-| Campo        | Tipo              | Descrição             |
-|--------------|-------------------|-----------------------|
-| `id`         | Long              | Identificador único   |
-| `nome`       | String            | Nome do jogo          |
-| `genero`     | Genero (enum)     | Gênero do jogo        |
-| `plataforma` | Plataforma (enum) | Plataforma disponível |
+| Campo        | Tipo              | Descrição                              |
+|--------------|-------------------|----------------------------------------|
+| `id`         | Long              | Identificador único                    |
+| `nome`       | String            | Nome do jogo (máx. 120 caracteres)     |
+| `genero`     | Genero (enum)     | Gênero do jogo                         |
+| `plataforma` | Plataforma (enum) | Plataforma disponível                  |
+| `imageUrl`   | String            | URL da imagem de capa (máx. 500 chars) |
+| `createdAt`  | LocalDateTime     | Data de criação (gerada automaticamente) |
+| `updatedAt`  | LocalDateTime     | Data da última atualização (gerada automaticamente) |
 
 ### ⭐ Review
 
-| Campo        | Tipo    | Descrição                           |
-|--------------|---------|-------------------------------------|
-| `id`         | Long    | Identificador único                 |
-| `nota`       | Integer | Nota de 1 a 10                      |
-| `comentario` | String  | Comentário da avaliação             |
-| `jogo`       | Jogo    | Relacionamento com a entidade Jogo  |
-| `usuario`    | Usuario | Relacionamento com o dono da review |
+| Campo        | Tipo          | Descrição                           |
+|--------------|---------------|-------------------------------------|
+| `id`         | Long          | Identificador único                 |
+| `nota`       | Integer       | Nota de 1 a 10                      |
+| `comentario` | String        | Comentário da avaliação             |
+| `jogo`       | Jogo          | Relacionamento com a entidade Jogo  |
+| `usuario`    | Usuario       | Relacionamento com o dono da review |
+| `createdAt`  | LocalDateTime | Data de criação (gerada automaticamente) |
+| `updatedAt`  | LocalDateTime | Data da última atualização (gerada automaticamente) |
 
 ### 👤 Usuario
 
-| Campo   | Tipo        | Descrição               |
-|---------|-------------|-------------------------|
-| `id`    | Long        | Identificador único     |
-| `email` | String      | E-mail único do usuário |
-| `senha` | String      | Senha com hash BCrypt   |
-| `role`  | Role (enum) | Papel do usuário        |
+| Campo       | Tipo          | Descrição                                      |
+|-------------|---------------|------------------------------------------------|
+| `id`        | Long          | Identificador único                            |
+| `email`     | String        | E-mail único do usuário (máx. 100 caracteres)  |
+| `nickname`  | String        | Apelido único do usuário (máx. 20 caracteres)  |
+| `senha`     | String        | Senha com hash BCrypt                          |
+| `role`      | Role (enum)   | Papel do usuário                               |
+| `createdAt` | LocalDateTime | Data de criação (gerada automaticamente)       |
+| `updatedAt` | LocalDateTime | Data da última atualização (gerada automaticamente) |
 
 ### 📐 Relacionamento
 
@@ -176,7 +184,7 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 
 ## 🚀 Funcionalidades
 
-- [x] Cadastrar um novo jogo
+- [x] Cadastrar um novo jogo (com URL de imagem de capa opcional)
 - [x] Listar todos os jogos (com paginação e ordenação)
 - [x] Filtrar jogos por gênero e/ou plataforma
 - [x] Buscar um jogo por ID
@@ -237,8 +245,8 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 ```json
 {
   "email": "usuario@teste.com",
-  "senha": "12345678",
-  "role": "ROLE_USER"
+  "nickname": "jogador123",
+  "senha": "12345678"
 }
 ```
 
@@ -265,7 +273,8 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 {
   "nome": "God of War",
   "genero": "ACAO",
-  "plataforma": "PS5"
+  "plataforma": "PS5",
+  "imageUrl": "https://exemplo.com/imagens/god-of-war.jpg"
 }
 ```
 
@@ -276,7 +285,10 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
   "id": 1,
   "nome": "God of War",
   "genero": "ACAO",
-  "plataforma": "PS5"
+  "plataforma": "PS5",
+  "imageUrl": "https://exemplo.com/imagens/god-of-war.jpg",
+  "createdAt": "2026-05-08T10:00:00",
+  "updatedAt": "2026-05-08T10:00:00"
 }
 ```
 
@@ -306,7 +318,9 @@ GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc  → com paginação
   "id": 1,
   "nota": 9,
   "comentario": "Jogo incrível, narrativa e combate perfeitos!",
-  "jogoId": 1
+  "jogoId": 1,
+  "createdAt": "2026-05-08T10:05:00",
+  "updatedAt": "2026-05-08T10:05:00"
 }
 ```
 
@@ -328,7 +342,9 @@ GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc  → com paginação
   "id": 1,
   "nota": 10,
   "comentario": "Mudei de ideia, é perfeito!",
-  "jogoId": 1
+  "jogoId": 1,
+  "createdAt": "2026-05-08T10:05:00",
+  "updatedAt": "2026-05-08T11:30:00"
 }
 ```
 
@@ -382,13 +398,13 @@ Quando o filtro é `null`, retorna `null` e o Spring Data ignora aquela condiç�
 
 O projeto usa `@RestControllerAdvice` para capturar exceções e retornar respostas padronizadas.
 
-| Exceção                           | Status | Quando ocorre                                   |
-|-----------------------------------|--------|-------------------------------------------------|
-| `RecursoNaoEncontradoException`   | 404    | Jogo ou review não encontrado                   |
-| `RecursoJaExisteException`        | 409    | Jogo com nome duplicado ou e-mail já cadastrado |
-| `MethodArgumentNotValidException` | 400    | Dados de entrada inválidos                      |
-| `AccessDeniedException`           | 403    | Usuário sem permissão para a operação           |
-| `Exception`                       | 500    | Erros inesperados                               |
+| Exceção                           | Status | Quando ocorre                                              |
+|-----------------------------------|--------|------------------------------------------------------------|
+| `RecursoNaoEncontradoException`   | 404    | Jogo ou review não encontrado                              |
+| `RecursoJaExisteException`        | 409    | Jogo com nome duplicado, e-mail ou nickname já cadastrado  |
+| `MethodArgumentNotValidException` | 400    | Dados de entrada inválidos                                 |
+| `AccessDeniedException`           | 403    | Usuário sem permissão para a operação                      |
+| `Exception`                       | 500    | Erros inesperados                                          |
 
 ---
 
@@ -450,10 +466,8 @@ cd review-de-jogos
 **2. Configure o banco de dados**
 
 ```sql
-DROP
-DATABASE IF EXISTS review_jogos;
-CREATE
-DATABASE review_jogos;
+DROP DATABASE IF EXISTS review_jogos;
+CREATE DATABASE review_jogos;
 ```
 
 Crie o arquivo `src/main/resources/application.properties`:
@@ -477,11 +491,9 @@ mvn spring-boot:run
 **4. Crie os usuários iniciais via API**
 
 ```bash
-
 # Criar usuário comum
 POST /auth/registrar
-{"email": "usuario@teste.com","senha": "12345678"}
-
+{"email": "usuario@teste.com", "nickname": "jogador123", "senha": "12345678"}
 ```
 
 **5. Acesse a API**

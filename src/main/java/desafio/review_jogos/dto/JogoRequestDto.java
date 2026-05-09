@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.URL;
 
 public record JogoRequestDto(
         @Null(groups = OnCreate.class, message = "O ID do jogo deve ser nulo ao criar um novo jogo")
@@ -23,6 +24,9 @@ public record JogoRequestDto(
         @NotNull(message = "A plataforma do jogo é obrigatória")
         Plataforma plataforma,
 
+        @URL(message = "A URL da imagem deve ser válida")
+        @Size(max = 500, message = "A URL deve ter no máximo 500 caracteres")
         String imageUrl
 ) {
+
 }

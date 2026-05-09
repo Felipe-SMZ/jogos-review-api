@@ -54,8 +54,7 @@ class ReviewControllerIT {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private String tokenDono;
     private String tokenOutro;
@@ -86,7 +85,7 @@ class ReviewControllerIT {
         );
 
         Usuario admin = usuarioRepository.save(
-                new Usuario(null, "admin@test.com", "Admin",
+                new Usuario(null, "admin@test.com", "Adminteste",
                         passwordEncoder.encode("123456"),
                         Role.ROLE_ADMIN, null, null)
         );
