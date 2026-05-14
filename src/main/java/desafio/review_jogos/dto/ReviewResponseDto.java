@@ -7,6 +7,7 @@ public record ReviewResponseDto(
         Integer nota,
         String comentario,
         Long jogoId,
+        Long usuarioId,
         String nickname,
         LocalDateTime createdAt
 

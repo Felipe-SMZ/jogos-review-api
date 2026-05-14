@@ -12,6 +12,7 @@ public class ReviewMapper {
                 review.getNota(),
                 review.getComentario(),
                 review.getJogo() != null ? review.getJogo().getId() : null,
+                review.getUsuario() != null ? review.getUsuario().getId() : null,
                 review.getUsuario() != null ? review.getUsuario().getNickname() : null,
                 review.getCreatedAt()
         );
