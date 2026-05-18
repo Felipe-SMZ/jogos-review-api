@@ -535,7 +535,7 @@ http://localhost:8080
 - [x] Testes unitários e de integração com JUnit e Mockito
 - [x] Deploy em nuvem (Railway)
 - [x] Containerização com Docker
-- [ ] Frontend em React + Vite
+- [x] Frontend em React + Vite
 
 ---
 
