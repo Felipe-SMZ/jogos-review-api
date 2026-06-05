@@ -26,10 +26,10 @@ camadas, autenticação e autorização com Spring Security + JWT e documentaç�
 ## 🌐 API em Produção
 
 A API está disponível publicamente em:
-https://jogos-review-api-production-d522.up.railway.app
+https://jogos-review-api.onrender.com
 
 Documentação interativa (Swagger):
-https://jogos-review-api-production-d522.up.railway.app/swagger-ui/index.html
+https://jogos-review-api.onrender.com/swagger-ui/index.html
 
 ---
 
