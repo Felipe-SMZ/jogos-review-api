@@ -1,0 +1,16 @@
+name: Keep API Alive
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API
+        run: |
+          curl -f https://jogos-review-api.onrender.com/actuator/health \
+          && echo "API está acordada ✅" \
+          || echo "API não respondeu ⚠️"
