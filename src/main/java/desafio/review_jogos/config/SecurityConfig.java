@@ -53,6 +53,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/reviews/**").authenticated()
 
+                        .requestMatchers("/actuator/health").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(filtroSeguranca, UsernamePasswordAuthenticationFilter.class)
