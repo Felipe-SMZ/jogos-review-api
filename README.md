@@ -9,7 +9,7 @@
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
-[![Status](https://betteruptime.com/status-badges/v1/monitor/YOUR_MONITOR_ID.svg)](https://game-critic.betteruptime.com)
+[![Status](https://betteruptime.com/status-badges/v1/monitor/2ouks.svg)](https://game-critic.betteruptime.com)
 
 ---
 
