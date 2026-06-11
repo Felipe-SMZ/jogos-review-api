@@ -1,72 +1,72 @@
-# 🎮 Review de Jogos — API REST
+# 🎮 Game Critic — API REST
 
-> API REST para gerenciamento de jogos e avaliações, desenvolvida com Java e Spring Boot.
+> API REST para gerenciamento de jogos e avaliações, com autenticação JWT, filtros dinâmicos, testes automatizados e monitoramento em produção.
 
 ![Java](https://img.shields.io/badge/Java-21+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot_4-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 ![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
-![Status](https://img.shields.io/badge/Status-Online-brightgreen?style=for-the-badge)
+[![Status](https://betteruptime.com/status-badges/v1/monitor/YOUR_MONITOR_ID.svg)](https://game-critic.betteruptime.com)
 
 ---
 
 ## 📌 Sobre o Projeto
 
-O **Review de Jogos** é uma API REST desenvolvida para o gerenciamento de jogos e avaliações. Por meio da API, é
-possível cadastrar jogos com informações como nome, gênero e plataforma, além de adicionar reviews com notas e
-comentários para cada jogo.
+O **Game Critic** é uma API REST para gerenciamento de jogos e avaliações. Permite cadastrar jogos com informações como nome, gênero e plataforma, adicionar reviews com notas e comentários, além de calcular médias de avaliações por jogo.
 
-O projeto foi desenvolvido com foco em boas práticas de desenvolvimento backend, separação de responsabilidades em
-camadas, autenticação e autorização com Spring Security + JWT e documentação interativa via Swagger/OpenAPI.
+O projeto foi desenvolvido com foco em boas práticas de backend: separação de responsabilidades em camadas, autenticação stateless com Spring Security + JWT, filtros dinâmicos com Specification, testes unitários e de integração, containerização com Docker e monitoramento de uptime em produção.
 
 ---
 
-## 🌐 API em Produção
+## 🌐 Links
 
-A API está disponível publicamente em:
-https://jogos-review-api.onrender.com
+| Recurso | URL |
+|---|---|
+| API em produção | https://jogos-review-api.onrender.com |
+| Documentação Swagger | https://jogos-review-api.onrender.com/swagger-ui/index.html |
+| Status da API | https://game-critic.betteruptime.com |
 
-Documentação interativa (Swagger):
-https://jogos-review-api.onrender.com/swagger-ui/index.html
-
----
-
-## 🧱 Tecnologias Utilizadas
-
-| Tecnologia                  | Descrição                             |
-|-----------------------------|---------------------------------------|
-| **Java 21+**                | Linguagem principal do projeto        |
-| **Spring Boot 4**           | Framework para criação da aplicação   |
-| **Spring Web**              | Criação dos endpoints REST            |
-| **Spring Security**         | Autenticação e autorização            |
-| **Spring Data JPA**         | Abstração de acesso ao banco de dados |
-| **Hibernate**               | ORM para mapeamento objeto-relacional |
-| **Auth0 JWT**               | Geração e validação de tokens JWT     |
-| **MySQL**                   | Banco de dados relacional             |
-| **Maven**                   | Gerenciamento de dependências e build |
-| **Swagger / OpenAPI 2.8.8** | Documentação interativa da API        |
-| **Docker**                  | Containerização da aplicação          |
-| **Railway**                 | Hospedagem em nuvem                   |
+> ⚠️ A API está hospedada no plano gratuito do Render. O monitoramento de uptime é feito via BetterStack.
 
 ---
 
-## 🏗️ Arquitetura do Projeto
+## 🧱 Tecnologias
 
-O projeto segue uma **arquitetura em camadas**, promovendo separação de responsabilidades e facilitando a manutenção e
-escalabilidade do código.
+| Tecnologia | Descrição |
+|---|---|
+| **Java 21** | Linguagem principal |
+| **Spring Boot 4** | Framework da aplicação |
+| **Spring Security** | Autenticação e autorização |
+| **Spring Data JPA + Hibernate** | Abstração de acesso ao banco de dados |
+| **Auth0 JWT** | Geração e validação de tokens JWT |
+| **MySQL** | Banco de dados relacional em produção |
+| **H2** | Banco em memória para testes de integração |
+| **Maven** | Gerenciamento de dependências e build |
+| **Swagger / OpenAPI 2.8.8** | Documentação interativa |
+| **Docker** | Containerização da aplicação |
+| **Render** | Hospedagem em nuvem |
+| **BetterStack** | Monitoramento de uptime em produção |
+| **GitHub Actions** | CI/CD automatizado |
+
+---
+
+## 🏗️ Arquitetura
+
+O projeto segue uma **arquitetura em camadas**, com separação clara de responsabilidades.
 
 ```
 src/main/java/desafio/review_jogos/
 │
-├── config/           → Configurações da aplicação (Swagger/OpenAPI, Security, Filtro JWT)
+├── config/           → Configurações (Swagger/OpenAPI, Security, Filtro JWT)
 ├── controller/       → Recebe e processa as requisições HTTP
-├── service/          → Contém as regras de negócio
-├── repository/       → Acesso e operações no banco de dados
-├── model/            → Entidades JPA mapeadas para o banco
+├── service/          → Regras de negócio
+├── repository/       → Acesso ao banco de dados
+├── model/            → Entidades JPA
 │   └── enums/        → Enums de Gênero, Plataforma e Role
-├── dto/              → Objetos de Transferência de Dados (DTOs)
+├── dto/              → Objetos de Transferência de Dados
 ├── mapper/           → Conversão entre entidades e DTOs
 ├── exception/        → Exceções customizadas e handler global
 ├── specification/    → Filtros dinâmicos com Spring Specification
@@ -75,43 +75,7 @@ src/main/java/desafio/review_jogos/
 
 ---
 
-## 🔗 Modelagem das Entidades
-
-### 🎮 Jogo
-
-| Campo        | Tipo              | Descrição                              |
-|--------------|-------------------|----------------------------------------|
-| `id`         | Long              | Identificador único                    |
-| `nome`       | String            | Nome do jogo (máx. 120 caracteres)     |
-| `genero`     | Genero (enum)     | Gênero do jogo                         |
-| `plataforma` | Plataforma (enum) | Plataforma disponível                  |
-| `imageUrl`   | String            | URL da imagem de capa (máx. 500 chars) |
-| `createdAt`  | LocalDateTime     | Data de criação (gerada automaticamente) |
-| `updatedAt`  | LocalDateTime     | Data da última atualização (gerada automaticamente) |
-
-### ⭐ Review
-
-| Campo        | Tipo          | Descrição                           |
-|--------------|---------------|-------------------------------------|
-| `id`         | Long          | Identificador único                 |
-| `nota`       | Integer       | Nota de 1 a 10                      |
-| `comentario` | String        | Comentário da avaliação             |
-| `jogo`       | Jogo          | Relacionamento com a entidade Jogo  |
-| `usuario`    | Usuario       | Relacionamento com o dono da review |
-| `createdAt`  | LocalDateTime | Data de criação (gerada automaticamente) |
-| `updatedAt`  | LocalDateTime | Data da última atualização (gerada automaticamente) |
-
-### 👤 Usuario
-
-| Campo       | Tipo          | Descrição                                      |
-|-------------|---------------|------------------------------------------------|
-| `id`        | Long          | Identificador único                            |
-| `email`     | String        | E-mail único do usuário (máx. 100 caracteres)  |
-| `nickname`  | String        | Apelido único do usuário (máx. 20 caracteres)  |
-| `senha`     | String        | Senha com hash BCrypt                          |
-| `role`      | Role (enum)   | Papel do usuário                               |
-| `createdAt` | LocalDateTime | Data de criação (gerada automaticamente)       |
-| `updatedAt` | LocalDateTime | Data da última atualização (gerada automaticamente) |
+## 🔗 Modelagem
 
 ### 📐 Relacionamento
 
@@ -120,29 +84,61 @@ Usuario  ──────────────<  Review  >─────�
   (1)                     (N)  (N)                  (1)
 ```
 
-Um usuário pode ter **muitas reviews**, cada review pertence a **um único usuário** e a **um único jogo**.
+Um usuário pode ter **muitas reviews**. Cada review pertence a **um único usuário** e a **um único jogo**.
+
+### 🎮 Jogo
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `id` | Long | Identificador único |
+| `nome` | String | Nome do jogo (máx. 120 caracteres) |
+| `genero` | Genero (enum) | Gênero do jogo |
+| `plataforma` | Plataforma (enum) | Plataforma disponível |
+| `imageUrl` | String | URL da imagem de capa (máx. 500 chars) |
+| `createdAt` | LocalDateTime | Data de criação (gerada automaticamente) |
+| `updatedAt` | LocalDateTime | Data da última atualização (gerada automaticamente) |
+
+### ⭐ Review
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `id` | Long | Identificador único |
+| `nota` | Integer | Nota de 1 a 10 |
+| `comentario` | String | Comentário da avaliação |
+| `jogo` | Jogo | Relacionamento com a entidade Jogo |
+| `usuario` | Usuario | Relacionamento com o dono da review |
+| `createdAt` | LocalDateTime | Data de criação (gerada automaticamente) |
+| `updatedAt` | LocalDateTime | Data da última atualização (gerada automaticamente) |
+
+### 👤 Usuario
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `id` | Long | Identificador único |
+| `email` | String | E-mail único (máx. 100 caracteres) |
+| `nickname` | String | Apelido único (máx. 20 caracteres) |
+| `senha` | String | Senha com hash BCrypt |
+| `role` | Role (enum) | Papel do usuário |
+| `createdAt` | LocalDateTime | Data de criação (gerada automaticamente) |
+| `updatedAt` | LocalDateTime | Data da última atualização (gerada automaticamente) |
 
 ---
 
 ## 🎯 Enums
 
-### Gênero
-
+**Gênero**
 ```
 ACAO, AVENTURA, RPG, ESTRATEGIA, ESPORTES, CORRIDA, LUTA,
 FPS, TPS, SURVIVAL, HORROR, PLATAFORMA, METROIDVANIA,
 ROGUELIKE, SIMULACAO, PUZZLE, STEALTH, MUSICAL, VISUAL_NOVEL, MOBILE
 ```
 
-### Plataforma
-
+**Plataforma**
 ```
-PS4, PS5, XBOX_ONE, XBOX_SERIES_X, XBOX_SERIES_S,
-PC, NINTENDO_SWITCH, MOBILE
+PS4, PS5, XBOX_ONE, XBOX_SERIES_X, XBOX_SERIES_S, PC, NINTENDO_SWITCH, MOBILE
 ```
 
-### Role
-
+**Role**
 ```
 ROLE_USER, ROLE_ADMIN
 ```
@@ -151,90 +147,69 @@ ROLE_USER, ROLE_ADMIN
 
 ## 🔐 Autenticação e Autorização
 
-O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
+Autenticação **stateless** com Spring Security + JWT.
 
-### Fluxo de autenticação
+### Fluxo
 
 ```
 1. POST /auth/registrar  →  cria usuário com senha hasheada (BCrypt)
 2. POST /auth/login      →  valida credenciais e retorna token JWT
-3. Requisições protegidas →  enviar token no header: Authorization: Bearer <token>
+3. Requisições protegidas →  Authorization: Bearer <token>
 ```
 
 ### Controle de acesso por role
 
-| Ação                            | ROLE_USER | ROLE_ADMIN |
-|---------------------------------|-----------|------------|
-| Listar e buscar jogos           | ✅ público | ✅ público  |
-| Cadastrar, editar, deletar jogo | ❌         | ✅          |
-| Criar review                    | ✅         | ✅          |
-| Atualizar própria review        | ✅         | ❌          |
-| Deletar própria review          | ✅         | ✅          |
-| Deletar review de outro usuário | ❌         | ✅          |
+| Ação | ROLE_USER | ROLE_ADMIN |
+|---|---|---|
+| Listar e buscar jogos | ✅ público | ✅ público |
+| Cadastrar, editar, deletar jogo | ❌ | ✅ |
+| Criar review | ✅ | ✅ |
+| Atualizar própria review | ✅ | ❌ |
+| Deletar própria review | ✅ | ✅ |
+| Deletar review de outro usuário | ❌ | ✅ |
 
 ### Como testar no Swagger
 
-1. Acesse `http://localhost:8080/swagger-ui/index.html`
+1. Acesse `/swagger-ui/index.html`
 2. Use `POST /auth/registrar` para criar um usuário
 3. Use `POST /auth/login` para obter o token JWT
-4. Clique em **Authorize** 🔒 no topo da página
-5. Cole o token (sem o `Bearer `) e confirme
+4. Clique em **Authorize** 🔒 e cole o token (sem o `Bearer `)
 
 ---
 
-## 🚀 Funcionalidades
-
-- [x] Cadastrar um novo jogo (com URL de imagem de capa opcional)
-- [x] Listar todos os jogos (com paginação e ordenação)
-- [x] Filtrar jogos por gênero e/ou plataforma
-- [x] Buscar um jogo por ID
-- [x] Atualizar um jogo
-- [x] Deletar um jogo
-- [x] Criar uma review para um jogo
-- [x] Listar todas as reviews de um jogo (com paginação)
-- [x] Atualizar uma review (apenas o dono)
-- [x] Deletar uma review
-- [x] Calcular a média de notas de um jogo
-- [x] Tratamento global de exceções com respostas padronizadas
-- [x] Autenticação e autorização com Spring Security + JWT
-- [x] Controle de acesso por roles (ROLE_USER e ROLE_ADMIN)
-- [x] Restrição de delete de review ao próprio dono ou ADMIN
-
----
-
-## 🌐 Endpoints da API
+## 🌐 Endpoints
 
 ### 🔐 Autenticação
 
-| Método | Endpoint          | Descrição                           | Acesso  |
-|--------|-------------------|-------------------------------------|---------|
-| `POST` | `/auth/registrar` | Cadastra um novo usuário            | Público |
-| `POST` | `/auth/login`     | Realiza login e retorna o token JWT | Público |
+| Método | Endpoint | Descrição | Acesso |
+|---|---|---|---|
+| `POST` | `/auth/registrar` | Cadastra um novo usuário | Público |
+| `POST` | `/auth/login` | Login e retorno do token JWT | Público |
 
 ### 🎮 Jogos
 
-| Método   | Endpoint      | Descrição                                          | Acesso  |
-|----------|---------------|----------------------------------------------------|---------|
-| `POST`   | `/jogos`      | Cadastra um novo jogo                              | ADMIN   |
-| `GET`    | `/jogos`      | Lista todos os jogos (suporta filtros e paginação) | Público |
-| `GET`    | `/jogos/{id}` | Busca um jogo pelo ID                              | Público |
-| `PUT`    | `/jogos/{id}` | Atualiza um jogo pelo ID                           | ADMIN   |
-| `DELETE` | `/jogos/{id}` | Remove um jogo pelo ID                             | ADMIN   |
+| Método | Endpoint | Descrição | Acesso |
+|---|---|---|---|
+| `POST` | `/jogos` | Cadastra um novo jogo | ADMIN |
+| `GET` | `/jogos` | Lista jogos (filtros e paginação) | Público |
+| `GET` | `/jogos/{id}` | Busca jogo por ID | Público |
+| `PUT` | `/jogos/{id}` | Atualiza jogo | ADMIN |
+| `DELETE` | `/jogos/{id}` | Remove jogo | ADMIN |
 
 ### ⭐ Reviews
 
-| Método   | Endpoint              | Descrição                                   | Acesso        |
-|----------|-----------------------|---------------------------------------------|---------------|
-| `POST`   | `/jogos/{id}/reviews` | Cria uma review para um jogo                | USER ou ADMIN |
-| `GET`    | `/jogos/{id}/reviews` | Lista as reviews de um jogo (com paginação) | Público       |
-| `PUT`    | `/reviews/{id}`       | Atualiza nota e/ou comentário de uma review | Dono          |
-| `DELETE` | `/reviews/{id}`       | Remove uma review pelo ID                   | Dono ou ADMIN |
+| Método | Endpoint | Descrição | Acesso |
+|---|---|---|---|
+| `POST` | `/jogos/{id}/reviews` | Cria review para um jogo | USER ou ADMIN |
+| `GET` | `/jogos/{id}/reviews` | Lista reviews de um jogo | Público |
+| `PUT` | `/reviews/{id}` | Atualiza review | Dono |
+| `DELETE` | `/reviews/{id}` | Remove review | Dono ou ADMIN |
 
 ### 📊 Estatísticas
 
-| Método | Endpoint            | Descrição                           | Acesso  |
-|--------|---------------------|-------------------------------------|---------|
-| `GET`  | `/jogos/{id}/media` | Retorna a média de notas de um jogo | Público |
+| Método | Endpoint | Descrição | Acesso |
+|---|---|---|---|
+| `GET` | `/jogos/{id}/media` | Média de notas de um jogo | Público |
 
 ---
 
@@ -260,14 +235,13 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 ```
 
 **Response `200 OK`:**
-
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
-### Criar um jogo — `POST /jogos` (requer ADMIN)
+### Criar jogo — `POST /jogos` *(requer ADMIN)*
 
 ```json
 {
@@ -279,7 +253,6 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 ```
 
 **Response `201 Created`:**
-
 ```json
 {
   "id": 1,
@@ -295,14 +268,14 @@ O projeto utiliza **Spring Security + JWT** para proteger os endpoints.
 ### Listar jogos com filtros — `GET /jogos`
 
 ```
-GET /jogos                                         → todos os jogos
-GET /jogos?genero=RPG                              → filtrado por gênero
-GET /jogos?plataforma=PS5                          → filtrado por plataforma
-GET /jogos?genero=RPG&plataforma=PS5               → filtrado pelos dois
-GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc  → com paginação
+GET /jogos                                          → todos os jogos
+GET /jogos?genero=RPG                               → filtrado por gênero
+GET /jogos?plataforma=PS5                           → filtrado por plataforma
+GET /jogos?genero=RPG&plataforma=PS5                → filtrado pelos dois
+GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc   → com paginação
 ```
 
-### Criar uma review — `POST /jogos/1/reviews` (requer USER ou ADMIN)
+### Criar review — `POST /jogos/1/reviews` *(requer USER ou ADMIN)*
 
 ```json
 {
@@ -312,7 +285,6 @@ GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc  → com paginação
 ```
 
 **Response `201 Created`:**
-
 ```json
 {
   "id": 1,
@@ -324,7 +296,7 @@ GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc  → com paginação
 }
 ```
 
-### Atualizar uma review — `PUT /reviews/{id}` (requer dono da review)
+### Atualizar review — `PUT /reviews/{id}` *(requer dono)*
 
 ```json
 {
@@ -335,23 +307,9 @@ GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc  → com paginação
 
 > Ambos os campos são opcionais — envie apenas o que deseja atualizar.
 
-**Response `200 OK`:**
-
-```json
-{
-  "id": 1,
-  "nota": 10,
-  "comentario": "Mudei de ideia, é perfeito!",
-  "jogoId": 1,
-  "createdAt": "2026-05-08T10:05:00",
-  "updatedAt": "2026-05-08T11:30:00"
-}
-```
-
-### Consultar média de notas — `GET /jogos/1/media`
+### Consultar média — `GET /jogos/1/media`
 
 **Response `200 OK`:**
-
 ```json
 {
   "jogoId": 1,
@@ -360,7 +318,7 @@ GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc  → com paginação
 }
 ```
 
-### Resposta de erro padronizada
+### Erro padronizado
 
 ```json
 {
@@ -375,13 +333,7 @@ GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc  → com paginação
 
 ## 🔍 Filtros Dinâmicos com Specification
 
-O projeto utiliza **Spring Data JPA Specification** para permitir filtros opcionais sem duplicar métodos no repository.
-
-**Por que usar Specification?**
-Sem ela, cada combinação de filtros exigiria um método diferente no repository (`findByGenero`, `findByPlataforma`,
-`findByGeneroAndPlataforma`...). Com Specification, um único método cobre todos os casos.
-
-**Como funciona:**
+O projeto usa **Spring Data JPA Specification** para filtros opcionais sem duplicar métodos no repository. Um único método cobre todas as combinações de filtros.
 
 ```java
 public static Specification<Jogo> porGenero(Genero genero) {
@@ -390,44 +342,40 @@ public static Specification<Jogo> porGenero(Genero genero) {
 }
 ```
 
-Quando o filtro é `null`, retorna `null` e o Spring Data ignora aquela condição automaticamente.
+Quando o filtro é `null`, o Spring Data ignora aquela condição automaticamente.
 
 ---
 
 ## ⚠️ Tratamento de Exceções
 
-O projeto usa `@RestControllerAdvice` para capturar exceções e retornar respostas padronizadas.
+Tratamento global via `@RestControllerAdvice` com respostas padronizadas.
 
-| Exceção                           | Status | Quando ocorre                                              |
-|-----------------------------------|--------|------------------------------------------------------------|
-| `RecursoNaoEncontradoException`   | 404    | Jogo ou review não encontrado                              |
-| `RecursoJaExisteException`        | 409    | Jogo com nome duplicado, e-mail ou nickname já cadastrado  |
-| `MethodArgumentNotValidException` | 400    | Dados de entrada inválidos                                 |
-| `AccessDeniedException`           | 403    | Usuário sem permissão para a operação                      |
-| `Exception`                       | 500    | Erros inesperados                                          |
+| Exceção | Status | Quando ocorre |
+|---|---|---|
+| `RecursoNaoEncontradoException` | 404 | Jogo ou review não encontrado |
+| `RecursoJaExisteException` | 409 | E-mail, nickname ou nome de jogo duplicado |
+| `MethodArgumentNotValidException` | 400 | Dados de entrada inválidos |
+| `AccessDeniedException` | 403 | Usuário sem permissão para a operação |
+| `Exception` | 500 | Erros inesperados |
 
 ---
 
 ## 🧪 Testes
 
-O projeto conta com testes unitários e de integração cobrindo as principais regras de negócio e endpoints da API.
+### Unitários — JUnit 5 + Mockito
 
-### Testes Unitários — JUnit 5 + Mockito
-
-| Classe              | Cobertura                                             |
-|---------------------|-------------------------------------------------------|
-| `JogoServiceTest`   | salvar, buscar, atualizar, excluir e média de notas   |
+| Classe | Cobertura |
+|---|---|
+| `JogoServiceTest` | salvar, buscar, atualizar, excluir e média de notas |
 | `ReviewServiceTest` | salvar, deletar e atualizar com controle de permissão |
-| `TokenServiceTest`  | geração e validação de tokens JWT                     |
+| `TokenServiceTest` | geração e validação de tokens JWT |
 
-### Testes de Integração — MockMvc + H2
+### Integração — MockMvc + H2
 
-| Classe               | Cobertura                                            |
-|----------------------|------------------------------------------------------|
-| `JogoControllerIT`   | 9 testes cobrindo CRUD completo e controle de acesso |
-| `ReviewControllerIT` | 11 testes cobrindo CRUD, permissões e validações     |
-
-### Executar os testes
+| Classe | Cobertura |
+|---|---|
+| `JogoControllerIT` | 9 testes cobrindo CRUD completo e controle de acesso |
+| `ReviewControllerIT` | 11 testes cobrindo CRUD, permissões e validações |
 
 ```bash
 mvn test
@@ -435,43 +383,59 @@ mvn test
 
 ---
 
-## 📘 Documentação da API — Swagger
+## 💡 Boas Práticas Aplicadas
 
-Após iniciar a aplicação, acesse:
-
-```
-http://localhost:8080/swagger-ui/index.html
-```
+- ✅ DTOs para não expor entidades JPA nas respostas
+- ✅ Enums para consistência nos dados de gênero, plataforma e role
+- ✅ Bean Validation com grupos `OnCreate` e `OnUpdate`
+- ✅ Arquitetura em camadas com separação clara de responsabilidades
+- ✅ Mapper dedicado para conversão entre entidades e DTOs
+- ✅ Tratamento global de exceções com `@RestControllerAdvice`
+- ✅ Paginação e ordenação com `Pageable` e `@PageableDefault`
+- ✅ Filtros dinâmicos com Spring Data Specification
+- ✅ Documentação automática com Swagger / OpenAPI
+- ✅ Autenticação stateless com Spring Security + JWT
+- ✅ Senhas protegidas com hash BCrypt
+- ✅ Autorização por roles com controle fino por endpoint
+- ✅ Injeção de dependência por construtor em todas as classes
+- ✅ Testes unitários e de integração com JUnit 5, Mockito e MockMvc
+- ✅ Containerização com Docker e Docker Compose
+- ✅ CI/CD com GitHub Actions
+- ✅ Monitoramento de uptime em produção com BetterStack
 
 ---
 
-## ⚙️ Como Executar o Projeto
+## ⚙️ Como Executar Localmente
 
 ### Pré-requisitos
 
 - [Java 21+](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html)
 - [Maven](https://maven.apache.org/)
 - [MySQL](https://www.mysql.com/)
-- IDE de sua preferência (IntelliJ IDEA ou Eclipse)
+- [Docker](https://www.docker.com/) *(opcional)*
 
-### Passo a passo
-
-**1. Clone o repositório**
+### Com Docker
 
 ```bash
 git clone https://github.com/Felipe-SMZ/jogos-review-api.git
-cd review-de-jogos
+cd jogos-review-api
+docker-compose up
+```
+
+### Sem Docker
+
+**1. Clone o repositório**
+```bash
+git clone https://github.com/Felipe-SMZ/jogos-review-api.git
+cd jogos-review-api
 ```
 
 **2. Configure o banco de dados**
-
 ```sql
-DROP DATABASE IF EXISTS review_jogos;
 CREATE DATABASE review_jogos;
 ```
 
-Crie o arquivo `src/main/resources/application.properties`:
-
+**3. Crie o arquivo `src/main/resources/application.properties`**
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/review_jogos?serverTimezone=America/Sao_Paulo
 spring.datasource.username=seu_usuario
@@ -482,60 +446,16 @@ springdoc.default-flat-param-object=true
 api.security.token.secret=seu_secret_jwt
 ```
 
-**3. Execute o projeto**
-
+**4. Execute**
 ```bash
 mvn spring-boot:run
 ```
 
-**4. Crie os usuários iniciais via API**
-
-```bash
-# Criar usuário comum
-POST /auth/registrar
-{"email": "usuario@teste.com", "nickname": "jogador123", "senha": "12345678"}
+**5. Acesse**
 ```
-
-**5. Acesse a API**
-
+API:     http://localhost:8080
+Swagger: http://localhost:8080/swagger-ui/index.html
 ```
-http://localhost:8080
-```
-
----
-
-## 💡 Boas Práticas Aplicadas
-
-- ✅ **DTOs** para não expor as entidades JPA diretamente nas respostas
-- ✅ **Enums** para garantir consistência nos dados de gênero, plataforma e role
-- ✅ **Bean Validation** com grupos `OnCreate` e `OnUpdate`
-- ✅ **Arquitetura em camadas** com separação clara de responsabilidades
-- ✅ **Mapper** dedicado para conversão entre entidades e DTOs
-- ✅ **Tratamento global de exceções** com `@RestControllerAdvice`
-- ✅ **Paginação e ordenação** com `Pageable` e `@PageableDefault`
-- ✅ **Filtros dinâmicos** com Spring Data Specification
-- ✅ **Documentação automática** com Swagger / OpenAPI
-- ✅ **Autenticação stateless** com Spring Security + JWT
-- ✅ **Senhas protegidas** com hash BCrypt
-- ✅ **Autorização por roles** com controle fino por endpoint
-- ✅ **Injeção de dependência por construtor** em todas as classes
-- ✅ **Testes unitários e de integração** com JUnit 5, Mockito e MockMvc
-- ✅ Containerização com Docker e Docker Compose
-- ✅ Deploy contínuo via Railway com CI/CD automático pelo GitHub
-
----
-
-## 📈 Melhorias Futuras
-
-- [x] Paginação e ordenação dos resultados
-- [x] Filtro de jogos por gênero ou plataforma
-- [x] Tratamento global de exceções com `@ControllerAdvice`
-- [x] Autenticação e autorização com Spring Security + JWT
-- [x] Endpoint `PUT /reviews/{id}` para atualizar nota e comentário
-- [x] Testes unitários e de integração com JUnit e Mockito
-- [x] Deploy em nuvem (Railway)
-- [x] Containerização com Docker
-- [x] Frontend em React + Vite
 
 ---
 
@@ -543,11 +463,5 @@ http://localhost:8080
 
 Desenvolvido por **Felipe Shimizu**
 
-- 🌐 Portfólio: [https://www.devfelipeshimizu.me/](https://www.devfelipeshimizu.me/)
-- 💼 LinkedIn: [https://www.linkedin.com/in/felipesshimizu/](https://www.linkedin.com/in/felipesshimizu/)
-
-Desenvolvido para fins de estudo e aprimoramento em desenvolvimento backend com **Java** e **Spring Boot**.
-
----
-
-> ⭐ Se este projeto foi útil para você, considere deixar uma estrela no repositório!
+[![Portfolio](https://img.shields.io/badge/Portfólio-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://www.devfelipeshimizu.me/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/felipesshimizu/)
