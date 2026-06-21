@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -38,6 +39,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new ErroResponse(409, "Conflict", ex.getMessage()));
+    }
+
+    // 400 — argumento inválido (validações manuais, fora do Bean Validation)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErroResponse> handleArgumentoInvalido(IllegalArgumentException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErroResponse(400, "Bad Request", ex.getMessage()));
+    }
+
+    // 400 — parâmetro obrigatório ausente na requisição (@RequestParam sem valor)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErroResponse> handleParametroAusente(MissingServletRequestParameterException ex) {
+        String mensagem = "Parâmetro obrigatório ausente: " + ex.getParameterName();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErroResponse(400, "Bad Request", mensagem));
     }
 
     // 400 — erros de validação (@Valid / @Validated)
