@@ -1,5 +1,7 @@
 package desafio.review_jogos.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -11,6 +13,8 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // 403 — sem permissão
     @ExceptionHandler(AccessDeniedException.class)
@@ -56,5 +60,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErroResponse(500, "Internal Server Error", "Erro interno no servidor."));
+    }
+
+    // 502 - erro na comunicação com a Api Igdb
+    @ExceptionHandler(IgdbIntegrationException.class)
+    public ResponseEntity<ErroResponse> handleIgdb(IgdbIntegrationException ex) {
+        log.error("Erro na integração com IGDB", ex);
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
+                .body(new ErroResponse(502, "Bad Gateway", "Serviço de busca de jogos temporariamente indisponível, tente novamente mais tarde"));
     }
 }
