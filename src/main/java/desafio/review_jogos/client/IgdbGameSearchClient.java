@@ -3,6 +3,7 @@ package desafio.review_jogos.client;
 import desafio.review_jogos.client.dto.IgdbGameDto;
 import desafio.review_jogos.config.IgdbProperties;
 import desafio.review_jogos.exception.IgdbIntegrationException;
+import desafio.review_jogos.exception.RecursoNaoEncontradoException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Responsável por buscar jogos na IGDB a partir de um termo de busca,
@@ -84,5 +86,56 @@ public class IgdbGameSearchClient {
                 fields id,name,summary,first_release_date,rating,cover.url,platforms.name;
                 limit 10;
                 """.formatted(termoSanitizado);
+    }
+
+
+    public IgdbGameDto buscarPorId(Long igdbId) {
+        if (igdbId == null || igdbId <= 0) {
+            throw new IllegalArgumentException("O ID do jogo na IGDB não pode ser nulo ou menor que zero.");
+        }
+
+        String accessToken = igdbAuthClient.obterAccessToken();
+        String query = montarQueryBuscaPorId(igdbId);
+
+        Optional<IgdbGameDto> resultado;
+
+        try {
+            resultado = igdbWebClient.post()
+                    .uri("/games")
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .header("Client-ID", igdbProperties.clientId())
+                    .header("Authorization", "Bearer " + accessToken)
+                    .bodyValue(query)
+                    .retrieve()
+                    .bodyToFlux(IgdbGameDto.class)
+                    .next()
+                    .blockOptional();
+
+        } catch (WebClientResponseException e) {
+            throw new IgdbIntegrationException(
+                    "Falha ao buscar jogo na IGDB (status %d): %s"
+                            .formatted(e.getStatusCode().value(), e.getMessage()),
+                    e
+            );
+        } catch (Exception e) {
+            throw new IgdbIntegrationException(
+                    "Erro inesperado ao buscar jogo na IGDB.", e
+            );
+        }
+
+        return resultado.orElseThrow(() ->
+                new RecursoNaoEncontradoException(
+                        "Jogo com ID " + igdbId + " não encontrado na IGDB."
+                )
+        );
+    }
+
+
+    private String montarQueryBuscaPorId(Long igdbId) {
+        return """
+                where id = %d;
+                fields id,name,summary,first_release_date,rating,cover.url,platforms.name;
+                limit 1;
+                """.formatted(igdbId);
     }
 }

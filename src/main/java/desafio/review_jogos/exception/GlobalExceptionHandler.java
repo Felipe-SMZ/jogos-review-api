@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.stream.Collectors;
 
@@ -16,30 +17,6 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
-    // 403 — sem permissão
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErroResponse> handleAccessDenied(AccessDeniedException ex) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(new ErroResponse(403, "Forbidden", ex.getMessage()));
-    }
-
-    // 404 — recurso não encontrado
-    @ExceptionHandler(RecursoNaoEncontradoException.class)
-    public ResponseEntity<ErroResponse> handleNaoEncontrado(RecursoNaoEncontradoException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ErroResponse(404, "Not Found", ex.getMessage()));
-    }
-
-    // 409 — recurso já existe
-    @ExceptionHandler(RecursoJaExisteException.class)
-    public ResponseEntity<ErroResponse> handleJaExiste(RecursoJaExisteException ex) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new ErroResponse(409, "Conflict", ex.getMessage()));
-    }
 
     // 400 — argumento inválido (validações manuais, fora do Bean Validation)
     @ExceptionHandler(IllegalArgumentException.class)
@@ -71,6 +48,40 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErroResponse(400, "Bad Request", mensagem));
     }
+
+    // 400 — tipo de parâmetro inválido (ex: string onde se espera Long)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErroResponse> handleTipoInvalido(MethodArgumentTypeMismatchException ex) {
+        String mensagem = "Valor inválido para o parâmetro '" + ex.getName() + "': " + ex.getValue();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErroResponse(400, "Bad Request", mensagem));
+    }
+
+    // 403 — sem permissão
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErroResponse> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErroResponse(403, "Forbidden", ex.getMessage()));
+    }
+
+    // 404 — recurso não encontrado
+    @ExceptionHandler(RecursoNaoEncontradoException.class)
+    public ResponseEntity<ErroResponse> handleNaoEncontrado(RecursoNaoEncontradoException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErroResponse(404, "Not Found", ex.getMessage()));
+    }
+
+    // 409 — recurso já existe
+    @ExceptionHandler(RecursoJaExisteException.class)
+    public ResponseEntity<ErroResponse> handleJaExiste(RecursoJaExisteException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErroResponse(409, "Conflict", ex.getMessage()));
+    }
+
 
     // 500 — qualquer erro inesperado
     @ExceptionHandler(Exception.class)
