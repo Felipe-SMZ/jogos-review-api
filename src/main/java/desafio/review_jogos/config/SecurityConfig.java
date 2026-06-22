@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/jogos").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/jogos/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/jogos/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/admin/jogos/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/admin/jogos/**").hasAuthority("ROLE_ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/jogos/*/reviews").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()

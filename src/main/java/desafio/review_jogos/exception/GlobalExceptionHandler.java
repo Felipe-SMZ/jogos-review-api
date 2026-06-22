@@ -1,16 +1,62 @@
 package desafio.review_jogos.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    // 400 — argumento inválido (validações manuais, fora do Bean Validation)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErroResponse> handleArgumentoInvalido(IllegalArgumentException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErroResponse(400, "Bad Request", ex.getMessage()));
+    }
+
+    // 400 — parâmetro obrigatório ausente na requisição (@RequestParam sem valor)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErroResponse> handleParametroAusente(MissingServletRequestParameterException ex) {
+        String mensagem = "Parâmetro obrigatório ausente: " + ex.getParameterName();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErroResponse(400, "Bad Request", mensagem));
+    }
+
+    // 400 — erros de validação (@Valid / @Validated)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErroResponse> handleValidacao(MethodArgumentNotValidException ex) {
+        String mensagem = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErroResponse(400, "Bad Request", mensagem));
+    }
+
+    // 400 — tipo de parâmetro inválido (ex: string onde se espera Long)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErroResponse> handleTipoInvalido(MethodArgumentTypeMismatchException ex) {
+        String mensagem = "Valor inválido para o parâmetro '" + ex.getName() + "': " + ex.getValue();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErroResponse(400, "Bad Request", mensagem));
+    }
 
     // 403 — sem permissão
     @ExceptionHandler(AccessDeniedException.class)
@@ -36,19 +82,6 @@ public class GlobalExceptionHandler {
                 .body(new ErroResponse(409, "Conflict", ex.getMessage()));
     }
 
-    // 400 — erros de validação (@Valid / @Validated)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErroResponse> handleValidacao(MethodArgumentNotValidException ex) {
-        String mensagem = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(e -> e.getField() + ": " + e.getDefaultMessage())
-                .collect(Collectors.joining(", "));
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErroResponse(400, "Bad Request", mensagem));
-    }
 
     // 500 — qualquer erro inesperado
     @ExceptionHandler(Exception.class)
@@ -56,5 +89,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErroResponse(500, "Internal Server Error", "Erro interno no servidor."));
+    }
+
+    // 502 - erro na comunicação com a Api Igdb
+    @ExceptionHandler(IgdbIntegrationException.class)
+    public ResponseEntity<ErroResponse> handleIgdb(IgdbIntegrationException ex) {
+        log.error("Erro na integração com IGDB", ex);
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
+                .body(new ErroResponse(502, "Bad Gateway", "Serviço de busca de jogos temporariamente indisponível, tente novamente mais tarde"));
     }
 }
