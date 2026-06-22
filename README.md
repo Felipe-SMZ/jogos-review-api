@@ -9,6 +9,7 @@
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
+![IGDB](https://img.shields.io/badge/IGDB-9147FF?style=for-the-badge&logo=twitch&logoColor=white)
 [![Status](https://betteruptime.com/status-badges/v1/monitor/2ouks.svg)](https://game-critic.betteruptime.com)
 
 ---
@@ -50,6 +51,7 @@ O projeto foi desenvolvido com foco em boas práticas de backend: separação de
 | **Render** | Hospedagem em nuvem |
 | **BetterStack** | Monitoramento de uptime em produção |
 | **GitHub Actions** | CI/CD automatizado |
+| **IGDB API + Twitch OAuth2** | Integração externa para busca e importação de jogos |
 
 ---
 
@@ -60,6 +62,8 @@ O projeto segue uma **arquitetura em camadas**, com separação clara de respons
 ```
 src/main/java/desafio/review_jogos/
 │
+├── client/           → Clients de integração externa (IGDB)
+│   └── dto/          → DTOs de resposta das APIs externas
 ├── config/           → Configurações (Swagger/OpenAPI, Security, Filtro JWT)
 ├── controller/       → Recebe e processa as requisições HTTP
 ├── service/          → Regras de negócio
@@ -204,6 +208,13 @@ Autenticação **stateless** com Spring Security + JWT.
 | `GET` | `/jogos/{id}/reviews` | Lista reviews de um jogo | Público |
 | `PUT` | `/reviews/{id}` | Atualiza review | Dono |
 | `DELETE` | `/reviews/{id}` | Remove review | Dono ou ADMIN |
+
+### 🔎 Admin — Integração IGDB
+
+| Método | Endpoint | Descrição | Acesso |
+|---|---|---|---|
+| `GET` | `/admin/jogos/buscar?termoBusca=` | Busca jogos na IGDB por termo | ADMIN |
+| `POST` | `/admin/jogos/importar` | Importa jogo da IGDB para o sistema | ADMIN |
 
 ### 📊 Estatísticas
 
@@ -357,6 +368,8 @@ Tratamento global via `@RestControllerAdvice` com respostas padronizadas.
 | `MethodArgumentNotValidException` | 400 | Dados de entrada inválidos |
 | `AccessDeniedException` | 403 | Usuário sem permissão para a operação |
 | `Exception` | 500 | Erros inesperados |
+| `IgdbIntegrationException` | 502 | Falha na comunicação com a IGDB |
+| `MethodArgumentTypeMismatchException` | 400 | Tipo de parâmetro inválido na URL |
 
 ---
 
@@ -402,6 +415,7 @@ mvn test
 - ✅ Containerização com Docker e Docker Compose
 - ✅ CI/CD com GitHub Actions
 - ✅ Monitoramento de uptime em produção com BetterStack
+- ✅ Integração com API externa (IGDB) via WebClient com OAuth2 Client Credentials
 
 ---
 
@@ -444,6 +458,8 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 springdoc.default-flat-param-object=true
 api.security.token.secret=seu_secret_jwt
+igdb.client-id=seu_client_id_twitch
+igdb.client-secret=seu_client_secret_twitch
 ```
 
 **4. Execute**
