@@ -20,5 +20,6 @@ public enum Genero {
     STEALTH,
     MUSICAL,
     VISUAL_NOVEL,
-    MOBILE
+    MOBILE,
+    OUTROS
 }
