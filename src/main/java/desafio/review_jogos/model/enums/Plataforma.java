@@ -8,5 +8,6 @@ public enum Plataforma {
     XBOX_SERIES_S,
     PC,
     NINTENDO_SWITCH,
-    MOBILE
+    MOBILE,
+    OUTROS
 }

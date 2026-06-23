@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,12 @@ public class Jogo {
     @Column(length = 500)
     private String imageUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String summary;
+
+    @Column(precision = 5, scale = 2)
+    private BigDecimal rating;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -46,15 +53,16 @@ public class Jogo {
     public Jogo() {
     }
 
-    public Jogo(Long id, String nome, Genero genero, Plataforma plataforma, String imageUrl) {
+    public Jogo(Long id, String nome, Genero genero, Plataforma plataforma, String imageUrl,
+                String summary, BigDecimal rating) {
         this.id = id;
         this.nome = nome;
         this.genero = genero;
         this.plataforma = plataforma;
         this.imageUrl = imageUrl;
+        this.summary = summary;
+        this.rating = rating;
     }
-
-    // getters e setters
 
     public Long getId() {
         return id;
@@ -94,6 +102,22 @@ public class Jogo {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public BigDecimal getRating() {
+        return rating;
+    }
+
+    public void setRating(BigDecimal rating) {
+        this.rating = rating;
     }
 
     public LocalDateTime getCreatedAt() {

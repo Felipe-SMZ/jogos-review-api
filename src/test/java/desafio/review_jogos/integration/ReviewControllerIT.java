@@ -95,7 +95,7 @@ class ReviewControllerIT {
         tokenAdmin = "Bearer " + tokenService.gerarToken(admin);
 
         Jogo jogo = jogoRepository.save(
-                new Jogo(null, "The Witcher 3", Genero.RPG, Plataforma.PC, null)
+                new Jogo(null, "The Witcher 3", Genero.RPG, Plataforma.PC, null, null, null)
         );
 
         jogoId = jogo.getId();
