@@ -3,26 +3,40 @@ package desafio.review_jogos.service;
 import desafio.review_jogos.dto.ReviewRequestDto;
 import desafio.review_jogos.dto.ReviewResponseDto;
 import desafio.review_jogos.exception.RecursoJaExisteException;
-import desafio.review_jogos.model.*;
-import desafio.review_jogos.model.enums.*;
-import desafio.review_jogos.repository.*;
-import org.junit.jupiter.api.*;
+import desafio.review_jogos.model.Jogo;
+import desafio.review_jogos.model.Review;
+import desafio.review_jogos.model.Usuario;
+import desafio.review_jogos.model.enums.Genero;
+import desafio.review_jogos.model.enums.Plataforma;
+import desafio.review_jogos.model.enums.Role;
+import desafio.review_jogos.repository.JogoRepository;
+import desafio.review_jogos.repository.ReviewRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
 
-    @Mock ReviewRepository reviewRepository;
-    @Mock JogoRepository jogoRepository;
+    @Mock
+    ReviewRepository reviewRepository;
 
-    @InjectMocks ReviewService reviewService;
+    @Mock
+    JogoRepository jogoRepository;
+
+    @InjectMocks
+    ReviewService reviewService;
 
     private Usuario dono;
     private Usuario outro;
@@ -68,7 +82,9 @@ class ReviewServiceTest {
                 "Game",
                 Genero.RPG,
                 Plataforma.PC,
-                null
+                null,
+                "Resumo do jogo",
+                new BigDecimal("8.90")
         );
 
         review = new Review(
@@ -125,6 +141,6 @@ class ReviewServiceTest {
 
         assertThatThrownBy(() ->
                 reviewService.deletar(1L, outro))
-                .isInstanceOf(org.springframework.security.access.AccessDeniedException.class);
+                .isInstanceOf(AccessDeniedException.class);
     }
 }
