@@ -4,15 +4,20 @@ import desafio.review_jogos.model.enums.Genero;
 import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.validation.OnCreate;
 import desafio.review_jogos.validation.OnUpdate;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.URL;
 
+import java.math.BigDecimal;
+
 public record JogoRequestDto(
         @Null(groups = OnCreate.class, message = "O ID do jogo deve ser nulo ao criar um novo jogo")
-        @NotNull(groups = OnUpdate.class, message = "O ID do jogo é obrigatório para atualização ou pesquisa") Long id,
+        @NotNull(groups = OnUpdate.class, message = "O ID do jogo é obrigatório para atualização ou pesquisa")
+        Long id,
 
         @NotBlank(message = "O nome do jogo é obrigatório")
         @Size(max = 100, message = "O nome do jogo deve ter no máximo 100 caracteres")
@@ -26,7 +31,13 @@ public record JogoRequestDto(
 
         @URL(message = "A URL da imagem deve ser válida")
         @Size(max = 500, message = "A URL deve ter no máximo 500 caracteres")
-        String imageUrl
-) {
+        String imageUrl,
 
+        @Size(max = 5000, message = "O resumo deve ter no máximo 5000 caracteres")
+        String summary,
+
+        @DecimalMin(value = "0.0", inclusive = true, message = "A nota deve ser maior ou igual a 0")
+        @DecimalMax(value = "100.0", inclusive = true, message = "A nota deve ser menor ou igual a 100")
+        BigDecimal rating
+) {
 }

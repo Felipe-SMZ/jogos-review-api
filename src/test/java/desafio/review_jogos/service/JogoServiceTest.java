@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,13 +37,29 @@ class JogoServiceTest {
     private JogoService jogoService;
 
     private Jogo jogo;
-
     private JogoRequestDto jogoDto;
 
     @BeforeEach
     void setUp() {
-        jogo = new Jogo(1L, "The Witcher 3", Genero.RPG, Plataforma.PC, null);
-        jogoDto = new JogoRequestDto(null, "The Witcher 3", Genero.RPG, Plataforma.PC, null);
+        jogo = new Jogo(
+                1L,
+                "The Witcher 3",
+                Genero.RPG,
+                Plataforma.PC,
+                null,
+                "RPG de fantasia com mundo aberto.",
+                new BigDecimal("9.50")
+        );
+
+        jogoDto = new JogoRequestDto(
+                null,
+                "The Witcher 3",
+                Genero.RPG,
+                Plataforma.PC,
+                null,
+                "RPG de fantasia com mundo aberto.",
+                new BigDecimal("9.50")
+        );
     }
 
     @Test
@@ -53,6 +70,8 @@ class JogoServiceTest {
         Jogo result = jogoService.salvar(jogoDto);
 
         assertThat(result.getNome()).isEqualTo("The Witcher 3");
+        assertThat(result.getSummary()).isEqualTo("RPG de fantasia com mundo aberto.");
+        assertThat(result.getRating()).isEqualByComparingTo("9.50");
     }
 
     @Test
@@ -72,6 +91,9 @@ class JogoServiceTest {
         JogoResponseDto dto = jogoService.buscarPorId(1L);
 
         assertThat(dto.id()).isEqualTo(1L);
+        assertThat(dto.nome()).isEqualTo("The Witcher 3");
+        assertThat(dto.summary()).isEqualTo("RPG de fantasia com mundo aberto.");
+        assertThat(dto.rating()).isEqualByComparingTo("9.50");
     }
 
     @Test
@@ -93,14 +115,50 @@ class JogoServiceTest {
 
     @Test
     void atualizar_ok() {
-        JogoRequestDto dto = new JogoRequestDto(null, "Elden Ring", Genero.RPG, Plataforma.PS5, null);
+        JogoRequestDto dto = new JogoRequestDto(
+                null,
+                "Elden Ring",
+                Genero.RPG,
+                Plataforma.PS5,
+                null,
+                "Action RPG em mundo aberto.",
+                new BigDecimal("9.80")
+        );
 
         when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
-        when(jogoRepository.save(any())).thenReturn(jogo);
+        when(jogoRepository.existsByNomeIgnoreCase("Elden Ring")).thenReturn(false);
+
+        when(jogoRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         JogoResponseDto result = jogoService.atualizar(1L, dto);
 
         assertThat(result.nome()).isEqualTo("Elden Ring");
+        assertThat(result.genero()).isEqualTo(Genero.RPG);
+        assertThat(result.plataforma()).isEqualTo(Plataforma.PS5);
+        assertThat(result.summary()).isEqualTo("Action RPG em mundo aberto.");
+        assertThat(result.rating()).isEqualByComparingTo("9.80");
+    }
+
+    @Test
+    void atualizar_deveLimparSummaryQuandoReceberStringEmBranco() {
+        JogoRequestDto dto = new JogoRequestDto(
+                null,
+                "Elden Ring",
+                Genero.RPG,
+                Plataforma.PS5,
+                null,
+                "   ",
+                new BigDecimal("9.80")
+        );
+
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
+        when(jogoRepository.existsByNomeIgnoreCase("Elden Ring")).thenReturn(false);
+        when(jogoRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        JogoResponseDto result = jogoService.atualizar(1L, dto);
+
+        assertThat(result.summary()).isNull();
+        assertThat(result.rating()).isEqualByComparingTo("9.80");
     }
 
     @Test

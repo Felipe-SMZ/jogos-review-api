@@ -22,7 +22,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.Map;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -63,15 +63,27 @@ class JogoControllerIT {
         usuarioRepository.deleteAll();
 
         Usuario admin = usuarioRepository.save(
-                new Usuario(null, "admin@test.com", "AdminTest",
+                new Usuario(
+                        null,
+                        "admin@test.com",
+                        "AdminTest",
                         passwordEncoder.encode("123456"),
-                        Role.ROLE_ADMIN, null, null)
+                        Role.ROLE_ADMIN,
+                        null,
+                        null
+                )
         );
 
         Usuario user = usuarioRepository.save(
-                new Usuario(null, "user@test.com", "UserTest",
+                new Usuario(
+                        null,
+                        "user@test.com",
+                        "UserTest",
                         passwordEncoder.encode("123456"),
-                        Role.ROLE_USER, null, null)
+                        Role.ROLE_USER,
+                        null,
+                        null
+                )
         );
 
         tokenAdmin = "Bearer " + tokenService.gerarToken(admin);

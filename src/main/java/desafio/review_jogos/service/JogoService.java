@@ -31,7 +31,6 @@ public class JogoService {
 
     @Transactional
     public Jogo salvar(JogoRequestDto dto) {
-        //o trim para tirar espacos extras
         String nomeLimpo = dto.nome().trim();
 
         if (jogoRepository.existsByNomeIgnoreCase(nomeLimpo)) {
@@ -40,12 +39,16 @@ public class JogoService {
 
         Jogo jogo = JogoMapper.toEntity(dto);
         jogo.setNome(nomeLimpo);
+
+        if (dto.summary() != null && dto.summary().isBlank()) {
+            jogo.setSummary(null);
+        }
+
         return jogoRepository.save(jogo);
     }
 
     @Transactional(readOnly = true)
     public Page<JogoResponseDto> buscarTodos(Genero genero, Plataforma plataforma, Pageable pageable) {
-
         Specification<Jogo> spec = Specification
                 .where(JogoSpecification.porGenero(genero))
                 .and(JogoSpecification.porPlataforma(plataforma));
@@ -83,16 +86,21 @@ public class JogoService {
         jogo.setNome(novoNome);
         jogo.setGenero(dto.genero());
         jogo.setPlataforma(dto.plataforma());
-        if (dto.imageUrl() != null) {
-            jogo.setImageUrl(dto.imageUrl());
+        jogo.setImageUrl(dto.imageUrl());
+
+        if (dto.summary() != null && dto.summary().isBlank()) {
+            jogo.setSummary(null);
+        } else {
+            jogo.setSummary(dto.summary());
         }
+
+        jogo.setRating(dto.rating());
 
         return JogoMapper.toResponse(jogoRepository.save(jogo));
     }
 
     @Transactional(readOnly = true)
     public MediaNotasResponseDto buscarMediaDoJogo(Long id) {
-
         Jogo jogo = jogoRepository.findById(id)
                 .orElseThrow(() ->
                         new RecursoNaoEncontradoException(
@@ -108,6 +116,4 @@ public class JogoService {
                 media != null ? media : 0.0
         );
     }
-
-
 }
