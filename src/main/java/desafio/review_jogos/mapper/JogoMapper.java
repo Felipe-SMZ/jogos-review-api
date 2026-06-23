@@ -12,6 +12,8 @@ public class JogoMapper {
                 jogo.getGenero(),
                 jogo.getPlataforma(),
                 jogo.getImageUrl(),
+                jogo.getSummary(),
+                jogo.getRating(),
                 jogo.getCreatedAt(),
                 jogo.getUpdatedAt()
         );
@@ -23,6 +25,8 @@ public class JogoMapper {
         jogo.setGenero(dto.genero());
         jogo.setPlataforma(dto.plataforma());
         jogo.setImageUrl(dto.imageUrl());
+        jogo.setSummary(dto.summary());
+        jogo.setRating(dto.rating());
         return jogo;
     }
 }
