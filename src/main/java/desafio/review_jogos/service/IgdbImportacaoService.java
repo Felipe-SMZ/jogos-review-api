@@ -9,6 +9,8 @@ import desafio.review_jogos.mapper.JogoMapper;
 import desafio.review_jogos.model.Jogo;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class IgdbImportacaoService {
 
@@ -39,12 +41,24 @@ public class IgdbImportacaoService {
                     .replace("t_thumb", "t_cover_big");
         }
 
+        String summary = null;
+        if (jogoIgdb.summary() != null && !jogoIgdb.summary().isBlank()) {
+            summary = jogoIgdb.summary().trim();
+        }
+
+        BigDecimal rating = null;
+        if (jogoIgdb.rating() != null) {
+            rating = BigDecimal.valueOf(jogoIgdb.rating());
+        }
+
         return new JogoRequestDto(
                 null,
                 jogoIgdb.name(),
                 dto.genero(),
                 dto.plataforma(),
-                imageUrl
+                imageUrl,
+                summary,
+                rating
         );
     }
 }
