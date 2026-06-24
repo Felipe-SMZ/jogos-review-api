@@ -18,11 +18,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JogoServiceTest {
@@ -45,17 +51,20 @@ class JogoServiceTest {
                 1L,
                 "The Witcher 3",
                 Genero.RPG,
-                Plataforma.PC,
+                Set.of(Plataforma.PC),
                 null,
                 "RPG de fantasia com mundo aberto.",
-                new BigDecimal("9.50")
+                new BigDecimal("9.50"),
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                new ArrayList<>()
         );
 
         jogoDto = new JogoRequestDto(
                 null,
                 "The Witcher 3",
                 Genero.RPG,
-                Plataforma.PC,
+                Set.of(Plataforma.PC),
                 null,
                 "RPG de fantasia com mundo aberto.",
                 new BigDecimal("9.50")
@@ -72,6 +81,7 @@ class JogoServiceTest {
         assertThat(result.getNome()).isEqualTo("The Witcher 3");
         assertThat(result.getSummary()).isEqualTo("RPG de fantasia com mundo aberto.");
         assertThat(result.getRating()).isEqualByComparingTo("9.50");
+        assertThat(result.getPlataformas()).containsExactly(Plataforma.PC);
     }
 
     @Test
@@ -94,6 +104,7 @@ class JogoServiceTest {
         assertThat(dto.nome()).isEqualTo("The Witcher 3");
         assertThat(dto.summary()).isEqualTo("RPG de fantasia com mundo aberto.");
         assertThat(dto.rating()).isEqualByComparingTo("9.50");
+        assertThat(dto.plataformas()).containsExactly(Plataforma.PC);
     }
 
     @Test
@@ -119,7 +130,7 @@ class JogoServiceTest {
                 null,
                 "Elden Ring",
                 Genero.RPG,
-                Plataforma.PS5,
+                Set.of(Plataforma.PLAYSTATION_5, Plataforma.PC),
                 null,
                 "Action RPG em mundo aberto.",
                 new BigDecimal("9.80")
@@ -127,14 +138,13 @@ class JogoServiceTest {
 
         when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
         when(jogoRepository.existsByNomeIgnoreCase("Elden Ring")).thenReturn(false);
-
         when(jogoRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         JogoResponseDto result = jogoService.atualizar(1L, dto);
 
         assertThat(result.nome()).isEqualTo("Elden Ring");
         assertThat(result.genero()).isEqualTo(Genero.RPG);
-        assertThat(result.plataforma()).isEqualTo(Plataforma.PS5);
+        assertThat(result.plataformas()).containsExactlyInAnyOrder(Plataforma.PLAYSTATION_5, Plataforma.PC);
         assertThat(result.summary()).isEqualTo("Action RPG em mundo aberto.");
         assertThat(result.rating()).isEqualByComparingTo("9.80");
     }
@@ -145,7 +155,7 @@ class JogoServiceTest {
                 null,
                 "Elden Ring",
                 Genero.RPG,
-                Plataforma.PS5,
+                Set.of(Plataforma.PLAYSTATION_5),
                 null,
                 "   ",
                 new BigDecimal("9.80")
@@ -159,6 +169,7 @@ class JogoServiceTest {
 
         assertThat(result.summary()).isNull();
         assertThat(result.rating()).isEqualByComparingTo("9.80");
+        assertThat(result.plataformas()).containsExactly(Plataforma.PLAYSTATION_5);
     }
 
     @Test

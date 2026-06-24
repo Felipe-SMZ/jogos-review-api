@@ -1,6 +1,5 @@
 package desafio.review_jogos.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import desafio.review_jogos.model.Usuario;
 import desafio.review_jogos.model.enums.Role;
 import desafio.review_jogos.repository.UsuarioRepository;

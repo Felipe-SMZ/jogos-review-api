@@ -23,11 +23,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -94,17 +99,26 @@ class ReviewControllerIT {
         tokenOutro = "Bearer " + tokenService.gerarToken(outro);
         tokenAdmin = "Bearer " + tokenService.gerarToken(admin);
 
-        Jogo jogo = jogoRepository.save(
-                new Jogo(null, "The Witcher 3", Genero.RPG, Plataforma.PC, null, null, null)
+        Jogo jogo = new Jogo(
+                null,
+                "The Witcher 3",
+                Genero.RPG,
+                Set.of(Plataforma.PC),
+                null,
+                null,
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                new ArrayList<>()
         );
 
+        jogo = jogoRepository.save(jogo);
         jogoId = jogo.getId();
     }
 
     @Test
     @DisplayName("POST /jogos/{id}/reviews: cria review -> 201")
     void criarReview_sucesso() throws Exception {
-
         var body = Map.of(
                 "nota", 9,
                 "comentario", "Obra prima"
@@ -121,7 +135,6 @@ class ReviewControllerIT {
     @Test
     @DisplayName("DELETE /reviews/{id}: outro usuário não pode deletar -> 403")
     void deletarReview_semPermissao() throws Exception {
-
         var body = Map.of("nota", 8, "comentario", "Bom");
 
         var result = mockMvc.perform(post("/jogos/" + jogoId + "/reviews")
@@ -142,7 +155,6 @@ class ReviewControllerIT {
     @Test
     @DisplayName("DELETE /reviews/{id}: admin pode deletar -> 204")
     void deletarReview_comAdmin() throws Exception {
-
         var body = Map.of("nota", 8, "comentario", "Bom");
 
         var result = mockMvc.perform(post("/jogos/" + jogoId + "/reviews")

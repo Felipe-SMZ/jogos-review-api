@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -93,11 +94,10 @@ class JogoControllerIT {
     @Test
     @DisplayName("POST /jogos: admin cria jogo -> 201")
     void criarJogo_comAdmin() throws Exception {
-
         var body = Map.of(
                 "nome", "Elden Ring",
                 "genero", "RPG",
-                "plataforma", "PC"
+                "plataformas", List.of("PC")
         );
 
         mockMvc.perform(post("/jogos")
@@ -105,17 +105,17 @@ class JogoControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.nome").value("Elden Ring"));
+                .andExpect(jsonPath("$.nome").value("Elden Ring"))
+                .andExpect(jsonPath("$.plataformas[0]").value("PC"));
     }
 
     @Test
     @DisplayName("POST /jogos: user não pode criar -> 403")
     void criarJogo_comUser() throws Exception {
-
         var body = Map.of(
                 "nome", "Elden Ring",
                 "genero", "RPG",
-                "plataforma", "PC"
+                "plataformas", List.of("PC")
         );
 
         mockMvc.perform(post("/jogos")
