@@ -1,9 +1,9 @@
 # 🎮 Game Critic — API REST
 
-> API REST para gerenciamento de jogos e avaliações, com autenticação JWT, filtros dinâmicos, testes automatizados e monitoramento em produção.
+> API REST para catálogo de jogos e avaliações, com autenticação JWT, filtros dinâmicos, integração com IGDB, testes automatizados e monitoramento em produção.
 
 ![Java](https://img.shields.io/badge/Java-21+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot_4-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 ![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
@@ -14,11 +14,25 @@
 
 ---
 
-## 📌 Sobre o Projeto
+## 📌 Sobre o projeto
 
-O **Game Critic** é uma API REST para gerenciamento de jogos e avaliações. Permite cadastrar jogos com informações como nome, gênero e plataforma, adicionar reviews com notas e comentários, além de calcular médias de avaliações por jogo.
+O **Game Critic** é uma API REST para gerenciamento de jogos e avaliações. A aplicação permite cadastrar jogos, consultar catálogo com filtros dinâmicos, registrar reviews com autenticação JWT e importar jogos da **IGDB** para enriquecer o banco com título, capa, descrição, nota e plataformas. 
 
-O projeto foi desenvolvido com foco em boas práticas de backend: separação de responsabilidades em camadas, autenticação stateless com Spring Security + JWT, filtros dinâmicos com Specification, testes unitários e de integração, containerização com Docker e monitoramento de uptime em produção.
+O projeto foi desenvolvido com foco em boas práticas de backend: arquitetura em camadas, autenticação stateless com Spring Security + JWT, Specifications para filtros opcionais, testes unitários e de integração, documentação com Swagger, containerização com Docker e monitoramento em produção. 
+
+---
+
+## 🚀 Principais recursos
+
+- Cadastro, listagem, atualização e remoção de jogos.
+- Cadastro e gerenciamento de reviews com controle de permissão por usuário.
+- Busca paginada com filtros dinâmicos por gênero e plataforma.
+- Importação de jogos da **IGDB** para o sistema.
+- Suporte a **múltiplas plataformas** por jogo.
+- Campos enriquecidos como `summary`, `rating` e `imageUrl`.
+- Autenticação e autorização com JWT.
+- Documentação interativa com Swagger/OpenAPI.
+- Testes automatizados com JUnit 5, Mockito, MockMvc e H2.
 
 ---
 
@@ -26,11 +40,11 @@ O projeto foi desenvolvido com foco em boas práticas de backend: separação de
 
 | Recurso | URL |
 |---|---|
-| API em produção | https://jogos-review-api.onrender.com |
-| Documentação Swagger | https://jogos-review-api.onrender.com/swagger-ui/index.html |
-| Status da API | https://game-critic.betteruptime.com |
+| API em produção | [https://jogos-review-api.onrender.com](https://jogos-review-api.onrender.com) |
+| Swagger | [https://jogos-review-api.onrender.com/swagger-ui/index.html](https://jogos-review-api.onrender.com/swagger-ui/index.html) |
+| Status | [https://game-critic.betteruptime.com](https://game-critic.betteruptime.com) |
 
-> ⚠️ A API está hospedada no plano gratuito do Render. O monitoramento de uptime é feito via BetterStack.
+> ⚠️ A API está hospedada no plano gratuito do Render, então a primeira requisição pode levar alguns segundos até o serviço despertar.
 
 ---
 
@@ -39,293 +53,242 @@ O projeto foi desenvolvido com foco em boas práticas de backend: separação de
 | Tecnologia | Descrição |
 |---|---|
 | **Java 21** | Linguagem principal |
-| **Spring Boot 4** | Framework da aplicação |
+| **Spring Boot** | Framework da aplicação |
 | **Spring Security** | Autenticação e autorização |
-| **Spring Data JPA + Hibernate** | Abstração de acesso ao banco de dados |
-| **Auth0 JWT** | Geração e validação de tokens JWT |
-| **MySQL** | Banco de dados relacional em produção |
-| **H2** | Banco em memória para testes de integração |
-| **Maven** | Gerenciamento de dependências e build |
-| **Swagger / OpenAPI 2.8.8** | Documentação interativa |
-| **Docker** | Containerização da aplicação |
-| **Render** | Hospedagem em nuvem |
-| **BetterStack** | Monitoramento de uptime em produção |
-| **GitHub Actions** | CI/CD automatizado |
+| **Spring Data JPA + Hibernate** | Persistência e acesso a dados |
+| **JWT / Auth0 Java JWT** | Geração e validação de token |
+| **MySQL** | Banco relacional em produção |
+| **H2** | Banco em memória para testes |
+| **Maven** | Build e dependências |
+| **Swagger / OpenAPI** | Documentação interativa |
+| **Docker / Docker Compose** | Containerização |
+| **Render** | Deploy da aplicação |
+| **BetterStack** | Monitoramento de uptime |
+| **GitHub Actions** | Pipeline CI/CD |
 | **IGDB API + Twitch OAuth2** | Integração externa para busca e importação de jogos |
 
 ---
 
 ## 🏗️ Arquitetura
 
-O projeto segue uma **arquitetura em camadas**, com separação clara de responsabilidades.
+A aplicação segue uma **arquitetura em camadas**, com separação clara entre entrada HTTP, regras de negócio, persistência e integração externa.
 
-```
+```text
 src/main/java/desafio/review_jogos/
 │
-├── client/           → Clients de integração externa (IGDB)
-│   └── dto/          → DTOs de resposta das APIs externas
-├── config/           → Configurações (Swagger/OpenAPI, Security, Filtro JWT)
-├── controller/       → Recebe e processa as requisições HTTP
+├── client/           → Integração externa com IGDB
+│   └── dto/          → DTOs da API externa
+├── config/           → Segurança, OpenAPI e filtros
+├── controller/       → Endpoints REST
 ├── service/          → Regras de negócio
 ├── repository/       → Acesso ao banco de dados
 ├── model/            → Entidades JPA
-│   └── enums/        → Enums de Gênero, Plataforma e Role
-├── dto/              → Objetos de Transferência de Dados
-├── mapper/           → Conversão entre entidades e DTOs
+│   └── enums/        → Enums de domínio
+├── dto/              → DTOs internos
+├── mapper/           → Conversão entre entidade e DTO
 ├── exception/        → Exceções customizadas e handler global
-├── specification/    → Filtros dinâmicos com Spring Specification
-└── validation/       → Grupos de validação (OnCreate, OnUpdate)
+├── specification/    → Filtros dinâmicos
+└── validation/       → Grupos de validação
 ```
 
 ---
 
 ## 🔗 Modelagem
 
-### 📐 Relacionamento
+### Relacionamento
 
-```
+```text
 Usuario  ──────────────<  Review  >──────────────  Jogo
   (1)                     (N)  (N)                  (1)
 ```
 
-Um usuário pode ter **muitas reviews**. Cada review pertence a **um único usuário** e a **um único jogo**.
+Um usuário pode criar várias reviews, e cada review pertence a um único usuário e a um único jogo.
 
-### 🎮 Jogo
+### Jogo
 
 | Campo | Tipo | Descrição |
 |---|---|---|
 | `id` | Long | Identificador único |
-| `nome` | String | Nome do jogo (máx. 120 caracteres) |
-| `genero` | Genero (enum) | Gênero do jogo |
-| `plataforma` | Plataforma (enum) | Plataforma disponível |
-| `imageUrl` | String | URL da imagem de capa (máx. 500 chars) |
-| `createdAt` | LocalDateTime | Data de criação (gerada automaticamente) |
-| `updatedAt` | LocalDateTime | Data da última atualização (gerada automaticamente) |
+| `nome` | String | Nome do jogo |
+| `genero` | `Genero` | Gênero principal do jogo |
+| `plataformas` | `Set<Plataforma>` | Plataformas associadas |
+| `imageUrl` | String | URL da capa |
+| `summary` | String | Descrição do jogo |
+| `rating` | BigDecimal | Nota externa importada |
+| `createdAt` | LocalDateTime | Data de criação |
+| `updatedAt` | LocalDateTime | Data de atualização |
 
-### ⭐ Review
+### Review
 
 | Campo | Tipo | Descrição |
 |---|---|---|
 | `id` | Long | Identificador único |
 | `nota` | Integer | Nota de 1 a 10 |
 | `comentario` | String | Comentário da avaliação |
-| `jogo` | Jogo | Relacionamento com a entidade Jogo |
-| `usuario` | Usuario | Relacionamento com o dono da review |
-| `createdAt` | LocalDateTime | Data de criação (gerada automaticamente) |
-| `updatedAt` | LocalDateTime | Data da última atualização (gerada automaticamente) |
+| `jogo` | Jogo | Jogo avaliado |
+| `usuario` | Usuario | Autor da review |
+| `createdAt` | LocalDateTime | Data de criação |
+| `updatedAt` | LocalDateTime | Data de atualização |
 
-### 👤 Usuario
+### Usuario
 
 | Campo | Tipo | Descrição |
 |---|---|---|
 | `id` | Long | Identificador único |
-| `email` | String | E-mail único (máx. 100 caracteres) |
-| `nickname` | String | Apelido único (máx. 20 caracteres) |
+| `email` | String | E-mail único |
+| `nickname` | String | Nome de exibição |
 | `senha` | String | Senha com hash BCrypt |
-| `role` | Role (enum) | Papel do usuário |
-| `createdAt` | LocalDateTime | Data de criação (gerada automaticamente) |
-| `updatedAt` | LocalDateTime | Data da última atualização (gerada automaticamente) |
+| `role` | Role | Papel do usuário |
+| `createdAt` | LocalDateTime | Data de criação |
+| `updatedAt` | LocalDateTime | Data de atualização |
 
 ---
 
 ## 🎯 Enums
 
-**Gênero**
-```
+### Gênero
+```text
 ACAO, AVENTURA, RPG, ESTRATEGIA, ESPORTES, CORRIDA, LUTA,
 FPS, TPS, SURVIVAL, HORROR, PLATAFORMA, METROIDVANIA,
-ROGUELIKE, SIMULACAO, PUZZLE, STEALTH, MUSICAL, VISUAL_NOVEL, MOBILE
+ROGUELIKE, SIMULACAO, PUZZLE, STEALTH, MUSICAL, VISUAL_NOVEL,
+MOBILE, OUTROS
 ```
 
-**Plataforma**
-```
-PS4, PS5, XBOX_ONE, XBOX_SERIES_X, XBOX_SERIES_S, PC, NINTENDO_SWITCH, MOBILE
+### Plataforma
+```text
+PS4, PS5, XBOX_ONE, XBOX_SERIES_X, XBOX_SERIES_S, PC,
+NINTENDO_SWITCH, MOBILE, OUTROS
 ```
 
-**Role**
-```
+### Role
+```text
 ROLE_USER, ROLE_ADMIN
 ```
 
 ---
 
-## 🔐 Autenticação e Autorização
+## 🔐 Autenticação e autorização
 
-Autenticação **stateless** com Spring Security + JWT.
+A API usa autenticação **stateless** com JWT.
 
 ### Fluxo
 
+```text
+POST /auth/registrar  → cria usuário
+POST /auth/login      → valida credenciais e retorna token
+Bearer Token          → acesso aos endpoints protegidos
 ```
-1. POST /auth/registrar  →  cria usuário com senha hasheada (BCrypt)
-2. POST /auth/login      →  valida credenciais e retorna token JWT
-3. Requisições protegidas →  Authorization: Bearer <token>
-```
 
-### Controle de acesso por role
+### Controle de acesso
 
-| Ação | ROLE_USER | ROLE_ADMIN |
-|---|---|---|
-| Listar e buscar jogos | ✅ público | ✅ público |
-| Cadastrar, editar, deletar jogo | ❌ | ✅ |
-| Criar review | ✅ | ✅ |
-| Atualizar própria review | ✅ | ❌ |
-| Deletar própria review | ✅ | ✅ |
-| Deletar review de outro usuário | ❌ | ✅ |
+| Ação | Público | USER | ADMIN |
+|---|---|---|---|
+| Listar e buscar jogos | ✅ | ✅ | ✅ |
+| Criar, editar e deletar jogo | ❌ | ❌ | ✅ |
+| Criar review | ❌ | ✅ | ✅ |
+| Atualizar própria review | ❌ | ✅ | ❌ |
+| Deletar própria review | ❌ | ✅ | ✅ |
+| Buscar/importar da IGDB | ❌ | ❌ | ✅ |
 
-### Como testar no Swagger
+### Teste no Swagger
 
-1. Acesse `/swagger-ui/index.html`
-2. Use `POST /auth/registrar` para criar um usuário
-3. Use `POST /auth/login` para obter o token JWT
-4. Clique em **Authorize** 🔒 e cole o token (sem o `Bearer `)
+1. Use `POST /auth/registrar` para criar um usuário.
+2. Faça login em `POST /auth/login`.
+3. Copie o token.
+4. Clique em **Authorize** no Swagger e cole o token sem o prefixo `Bearer`.
 
 ---
 
 ## 🌐 Endpoints
 
-### 🔐 Autenticação
+### Autenticação
 
-| Método | Endpoint | Descrição | Acesso |
-|---|---|---|---|
-| `POST` | `/auth/registrar` | Cadastra um novo usuário | Público |
-| `POST` | `/auth/login` | Login e retorno do token JWT | Público |
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/auth/registrar` | Registra um usuário |
+| `POST` | `/auth/login` | Retorna token JWT |
 
-### 🎮 Jogos
+### Jogos
 
-| Método | Endpoint | Descrição | Acesso |
-|---|---|---|---|
-| `POST` | `/jogos` | Cadastra um novo jogo | ADMIN |
-| `GET` | `/jogos` | Lista jogos (filtros e paginação) | Público |
-| `GET` | `/jogos/{id}` | Busca jogo por ID | Público |
-| `PUT` | `/jogos/{id}` | Atualiza jogo | ADMIN |
-| `DELETE` | `/jogos/{id}` | Remove jogo | ADMIN |
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/jogos` | Cadastra um jogo |
+| `GET` | `/jogos` | Lista jogos com filtros e paginação |
+| `GET` | `/jogos/{id}` | Busca jogo por ID |
+| `PUT` | `/jogos/{id}` | Atualiza jogo |
+| `DELETE` | `/jogos/{id}` | Remove jogo |
 
-### ⭐ Reviews
+### Reviews
 
-| Método | Endpoint | Descrição | Acesso |
-|---|---|---|---|
-| `POST` | `/jogos/{id}/reviews` | Cria review para um jogo | USER ou ADMIN |
-| `GET` | `/jogos/{id}/reviews` | Lista reviews de um jogo | Público |
-| `PUT` | `/reviews/{id}` | Atualiza review | Dono |
-| `DELETE` | `/reviews/{id}` | Remove review | Dono ou ADMIN |
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/jogos/{id}/reviews` | Cria review para um jogo |
+| `GET` | `/jogos/{id}/reviews` | Lista reviews do jogo |
+| `PUT` | `/reviews/{id}` | Atualiza review |
+| `DELETE` | `/reviews/{id}` | Remove review |
 
-### 🔎 Admin — Integração IGDB
+### Admin — IGDB
 
-| Método | Endpoint | Descrição | Acesso |
-|---|---|---|---|
-| `GET` | `/admin/jogos/buscar?termoBusca=` | Busca jogos na IGDB por termo | ADMIN |
-| `POST` | `/admin/jogos/importar` | Importa jogo da IGDB para o sistema | ADMIN |
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/admin/jogos/buscar?termoBusca=` | Busca jogos na IGDB |
+| `POST` | `/admin/jogos/importar` | Importa jogo para o sistema |
 
-### 📊 Estatísticas
+### Estatísticas
 
-| Método | Endpoint | Descrição | Acesso |
-|---|---|---|---|
-| `GET` | `/jogos/{id}/media` | Média de notas de um jogo | Público |
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/jogos/{id}/media` | Retorna média de notas do jogo |
 
 ---
 
-## 📋 Exemplos de Requisição
+## 📋 Exemplos
 
-### Registrar usuário — `POST /auth/registrar`
-
-```json
-{
-  "email": "usuario@teste.com",
-  "nickname": "jogador123",
-  "senha": "12345678"
-}
-```
-
-### Login — `POST /auth/login`
+### Criar jogo
 
 ```json
 {
-  "email": "usuario@teste.com",
-  "senha": "12345678"
-}
-```
-
-**Response `200 OK`:**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-### Criar jogo — `POST /jogos` *(requer ADMIN)*
-
-```json
-{
-  "nome": "God of War",
+  "nome": "God of War Ragnarok",
   "genero": "ACAO",
-  "plataforma": "PS5",
-  "imageUrl": "https://exemplo.com/imagens/god-of-war.jpg"
+  "plataformas": ["PS5", "PC"],
+  "imageUrl": "https://exemplo.com/capa.jpg",
+  "summary": "Kratos e Atreus enfrentam novas ameaças no Ragnarok.",
+  "rating": 9.50
 }
 ```
 
-**Response `201 Created`:**
+### Resposta
+
 ```json
 {
   "id": 1,
-  "nome": "God of War",
+  "nome": "God of War Ragnarok",
   "genero": "ACAO",
-  "plataforma": "PS5",
-  "imageUrl": "https://exemplo.com/imagens/god-of-war.jpg",
-  "createdAt": "2026-05-08T10:00:00",
-  "updatedAt": "2026-05-08T10:00:00"
+  "plataformas": ["PS5", "PC"],
+  "imageUrl": "https://exemplo.com/capa.jpg",
+  "summary": "Kratos e Atreus enfrentam novas ameaças no Ragnarok.",
+  "rating": 9.50,
+  "createdAt": "2026-06-23T20:00:00",
+  "updatedAt": "2026-06-23T20:00:00"
 }
 ```
 
-### Listar jogos com filtros — `GET /jogos`
+### Filtros
 
-```
-GET /jogos                                          → todos os jogos
-GET /jogos?genero=RPG                               → filtrado por gênero
-GET /jogos?plataforma=PS5                           → filtrado por plataforma
-GET /jogos?genero=RPG&plataforma=PS5                → filtrado pelos dois
-GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc   → com paginação
+```text
+GET /jogos
+GET /jogos?genero=RPG
+GET /jogos?plataforma=PS5
+GET /jogos?genero=RPG&plataforma=PC
+GET /jogos?page=0&size=5&sort=nome,asc
 ```
 
-### Criar review — `POST /jogos/1/reviews` *(requer USER ou ADMIN)*
+### Importação da IGDB
 
 ```json
 {
-  "nota": 9,
-  "comentario": "Jogo incrível, narrativa e combate perfeitos!"
-}
-```
-
-**Response `201 Created`:**
-```json
-{
-  "id": 1,
-  "nota": 9,
-  "comentario": "Jogo incrível, narrativa e combate perfeitos!",
-  "jogoId": 1,
-  "createdAt": "2026-05-08T10:05:00",
-  "updatedAt": "2026-05-08T10:05:00"
-}
-```
-
-### Atualizar review — `PUT /reviews/{id}` *(requer dono)*
-
-```json
-{
-  "nota": 10,
-  "comentario": "Mudei de ideia, é perfeito!"
-}
-```
-
-> Ambos os campos são opcionais — envie apenas o que deseja atualizar.
-
-### Consultar média — `GET /jogos/1/media`
-
-**Response `200 OK`:**
-```json
-{
-  "jogoId": 1,
-  "nome": "God of War",
-  "mediaNotas": 9.0
+  "idIgdb": 1020,
+  "genero": "RPG"
 }
 ```
 
@@ -336,15 +299,15 @@ GET /jogos?genero=RPG&page=0&size=5&sort=nome,asc   → com paginação
   "status": 403,
   "erro": "Forbidden",
   "message": "Você não tem permissão para deletar esta review.",
-  "timestamp": "2026-05-03T20:00:00"
+  "timestamp": "2026-06-23T20:00:00"
 }
 ```
 
 ---
 
-## 🔍 Filtros Dinâmicos com Specification
+## 🔍 Filtros dinâmicos
 
-O projeto usa **Spring Data JPA Specification** para filtros opcionais sem duplicar métodos no repository. Um único método cobre todas as combinações de filtros.
+A listagem de jogos usa **Spring Data JPA Specification** para combinar filtros opcionais sem multiplicar métodos no repository.
 
 ```java
 public static Specification<Jogo> porGenero(Genero genero) {
@@ -353,42 +316,43 @@ public static Specification<Jogo> porGenero(Genero genero) {
 }
 ```
 
-Quando o filtro é `null`, o Spring Data ignora aquela condição automaticamente.
+O mesmo conceito é usado para plataforma, permitindo combinar parâmetros na URL de forma flexível.
 
 ---
 
-## ⚠️ Tratamento de Exceções
+## ⚠️ Tratamento de exceções
 
-Tratamento global via `@RestControllerAdvice` com respostas padronizadas.
+A API usa `@RestControllerAdvice` para padronizar respostas de erro.
 
-| Exceção | Status | Quando ocorre |
-|---|---|---|
-| `RecursoNaoEncontradoException` | 404 | Jogo ou review não encontrado |
-| `RecursoJaExisteException` | 409 | E-mail, nickname ou nome de jogo duplicado |
-| `MethodArgumentNotValidException` | 400 | Dados de entrada inválidos |
-| `AccessDeniedException` | 403 | Usuário sem permissão para a operação |
-| `Exception` | 500 | Erros inesperados |
-| `IgdbIntegrationException` | 502 | Falha na comunicação com a IGDB |
-| `MethodArgumentTypeMismatchException` | 400 | Tipo de parâmetro inválido na URL |
+| Exceção | Status |
+|---|---|
+| `RecursoNaoEncontradoException` | 404 |
+| `RecursoJaExisteException` | 409 |
+| `MethodArgumentNotValidException` | 400 |
+| `MethodArgumentTypeMismatchException` | 400 |
+| `AccessDeniedException` | 403 |
+| `IgdbIntegrationException` | 502 |
+| `Exception` | 500 |
 
 ---
 
 ## 🧪 Testes
 
-### Unitários — JUnit 5 + Mockito
+A aplicação possui testes unitários e de integração cobrindo regras críticas de negócio, autenticação, permissões e integração com a IGDB.
 
-| Classe | Cobertura |
-|---|---|
-| `JogoServiceTest` | salvar, buscar, atualizar, excluir e média de notas |
-| `ReviewServiceTest` | salvar, deletar e atualizar com controle de permissão |
-| `TokenServiceTest` | geração e validação de tokens JWT |
+### Unitários
+- `JogoServiceTest`
+- `ReviewServiceTest`
+- `TokenServiceTest`
+- `IgdbImportacaoServiceTest`
 
-### Integração — MockMvc + H2
+### Integração
+- `JogoControllerIT`
+- `ReviewControllerIT`
+- `AutenticacaoControllerIT`
+- `AdminJogoControllerIT`
 
-| Classe | Cobertura |
-|---|---|
-| `JogoControllerIT` | 9 testes cobrindo CRUD completo e controle de acesso |
-| `ReviewControllerIT` | 11 testes cobrindo CRUD, permissões e validações |
+Execução:
 
 ```bash
 mvn test
@@ -396,37 +360,32 @@ mvn test
 
 ---
 
-## 💡 Boas Práticas Aplicadas
+## 💡 Boas práticas aplicadas
 
-- ✅ DTOs para não expor entidades JPA nas respostas
-- ✅ Enums para consistência nos dados de gênero, plataforma e role
-- ✅ Bean Validation com grupos `OnCreate` e `OnUpdate`
-- ✅ Arquitetura em camadas com separação clara de responsabilidades
-- ✅ Mapper dedicado para conversão entre entidades e DTOs
-- ✅ Tratamento global de exceções com `@RestControllerAdvice`
-- ✅ Paginação e ordenação com `Pageable` e `@PageableDefault`
-- ✅ Filtros dinâmicos com Spring Data Specification
-- ✅ Documentação automática com Swagger / OpenAPI
-- ✅ Autenticação stateless com Spring Security + JWT
-- ✅ Senhas protegidas com hash BCrypt
-- ✅ Autorização por roles com controle fino por endpoint
-- ✅ Injeção de dependência por construtor em todas as classes
-- ✅ Testes unitários e de integração com JUnit 5, Mockito e MockMvc
-- ✅ Containerização com Docker e Docker Compose
-- ✅ CI/CD com GitHub Actions
-- ✅ Monitoramento de uptime em produção com BetterStack
-- ✅ Integração com API externa (IGDB) via WebClient com OAuth2 Client Credentials
+- DTOs para entrada e saída
+- Mapper dedicado
+- Validação com Bean Validation
+- Arquitetura em camadas
+- JWT stateless
+- BCrypt para senhas
+- Controle de acesso por perfil
+- Paginação e ordenação
+- Specifications para filtros opcionais
+- Testes unitários e de integração
+- Integração com API externa
+- Documentação com Swagger
+- Deploy monitorado em produção
 
 ---
 
-## ⚙️ Como Executar Localmente
+## ⚙️ Como executar localmente
 
 ### Pré-requisitos
 
-- [Java 21+](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html)
-- [Maven](https://maven.apache.org/)
-- [MySQL](https://www.mysql.com/)
-- [Docker](https://www.docker.com/) *(opcional)*
+- Java 21+
+- Maven
+- MySQL
+- Docker (opcional)
 
 ### Com Docker
 
@@ -438,37 +397,45 @@ docker-compose up
 
 ### Sem Docker
 
-**1. Clone o repositório**
+#### 1. Clone o repositório
+
 ```bash
 git clone https://github.com/Felipe-SMZ/jogos-review-api.git
 cd jogos-review-api
 ```
 
-**2. Configure o banco de dados**
+#### 2. Crie o banco
+
 ```sql
 CREATE DATABASE review_jogos;
 ```
 
-**3. Crie o arquivo `src/main/resources/application.properties`**
+#### 3. Configure `application.properties`
+
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/review_jogos?serverTimezone=America/Sao_Paulo
 spring.datasource.username=seu_usuario
 spring.datasource.password=sua_senha
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
+
 springdoc.default-flat-param-object=true
+
 api.security.token.secret=seu_secret_jwt
+
 igdb.client-id=seu_client_id_twitch
 igdb.client-secret=seu_client_secret_twitch
 ```
 
-**4. Execute**
+#### 4. Execute
+
 ```bash
 mvn spring-boot:run
 ```
 
-**5. Acesse**
-```
+#### 5. Acesse
+
+```text
 API:     http://localhost:8080
 Swagger: http://localhost:8080/swagger-ui/index.html
 ```
