@@ -5,12 +5,13 @@ import desafio.review_jogos.dto.JogoResponseDto;
 import desafio.review_jogos.model.Jogo;
 
 public class JogoMapper {
+
     public static JogoResponseDto toResponse(Jogo jogo) {
         return new JogoResponseDto(
                 jogo.getId(),
                 jogo.getNome(),
                 jogo.getGenero(),
-                jogo.getPlataforma(),
+                jogo.getPlataformas(),
                 jogo.getImageUrl(),
                 jogo.getSummary(),
                 jogo.getRating(),
@@ -23,7 +24,7 @@ public class JogoMapper {
         Jogo jogo = new Jogo();
         jogo.setNome(dto.nome());
         jogo.setGenero(dto.genero());
-        jogo.setPlataforma(dto.plataforma());
+        jogo.setPlataformas(dto.plataformas());
         jogo.setImageUrl(dto.imageUrl());
         jogo.setSummary(dto.summary());
         jogo.setRating(dto.rating());

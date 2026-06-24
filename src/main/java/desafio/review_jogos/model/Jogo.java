@@ -2,14 +2,29 @@ package desafio.review_jogos.model;
 
 import desafio.review_jogos.model.enums.Genero;
 import desafio.review_jogos.model.enums.Plataforma;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "jogos")
@@ -26,9 +41,14 @@ public class Jogo {
     @Column(nullable = false)
     private Genero genero;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "jogo_plataformas",
+            joinColumns = @JoinColumn(name = "jogo_id")
+    )
+    @Column(name = "plataforma", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Plataforma plataforma;
+    private Set<Plataforma> plataformas = new HashSet<>();
 
     @Column(length = 500)
     private String imageUrl;
@@ -53,15 +73,26 @@ public class Jogo {
     public Jogo() {
     }
 
-    public Jogo(Long id, String nome, Genero genero, Plataforma plataforma, String imageUrl,
-                String summary, BigDecimal rating) {
+    public Jogo(Long id,
+                String nome,
+                Genero genero,
+                Set<Plataforma> plataformas,
+                String imageUrl,
+                String summary,
+                BigDecimal rating,
+                LocalDateTime createdAt,
+                LocalDateTime updatedAt,
+                List<Review> reviews) {
         this.id = id;
         this.nome = nome;
         this.genero = genero;
-        this.plataforma = plataforma;
+        this.plataformas = plataformas == null ? new HashSet<>() : new HashSet<>(plataformas);
         this.imageUrl = imageUrl;
         this.summary = summary;
         this.rating = rating;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.reviews = reviews == null ? new ArrayList<>() : new ArrayList<>(reviews);
     }
 
     public Long getId() {
@@ -88,12 +119,12 @@ public class Jogo {
         this.genero = genero;
     }
 
-    public Plataforma getPlataforma() {
-        return plataforma;
+    public Set<Plataforma> getPlataformas() {
+        return plataformas;
     }
 
-    public void setPlataforma(Plataforma plataforma) {
-        this.plataforma = plataforma;
+    public void setPlataformas(Set<Plataforma> plataformas) {
+        this.plataformas = plataformas == null ? new HashSet<>() : new HashSet<>(plataformas);
     }
 
     public String getImageUrl() {
@@ -124,8 +155,16 @@ public class Jogo {
         return createdAt;
     }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public List<Review> getReviews() {
@@ -133,6 +172,6 @@ public class Jogo {
     }
 
     public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
+        this.reviews = reviews == null ? new ArrayList<>() : new ArrayList<>(reviews);
     }
 }
