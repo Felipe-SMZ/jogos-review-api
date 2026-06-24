@@ -41,7 +41,7 @@ public class Jogo {
     @Column(nullable = false)
     private Genero genero;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "jogo_plataformas",
             joinColumns = @JoinColumn(name = "jogo_id")
