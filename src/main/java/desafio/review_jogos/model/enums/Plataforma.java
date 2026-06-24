@@ -1,13 +1,35 @@
 package desafio.review_jogos.model.enums;
 
 public enum Plataforma {
-    PS4,
-    PS5,
+    PC,
+
+    PLAYSTATION,
+    PLAYSTATION_2,
+    PLAYSTATION_3,
+    PLAYSTATION_4,
+    PLAYSTATION_5,
+    PLAYSTATION_PORTABLE,
+    PLAYSTATION_VITA,
+
+    XBOX,
+    XBOX_360,
     XBOX_ONE,
     XBOX_SERIES_X,
     XBOX_SERIES_S,
-    PC,
+
+    NINTENDO_ENTERTAINMENT_SYSTEM,
+    SUPER_NINTENDO,
+    NINTENDO_64,
+    NINTENDO_GAMECUBE,
+    NINTENDO_WII,
+    NINTENDO_WII_U,
     NINTENDO_SWITCH,
+    NINTENDO_SWITCH_2,
+    GAME_BOY,
+    GAME_BOY_ADVANCE,
+    NINTENDO_DS,
+    NINTENDO_3DS,
+
     MOBILE,
     OUTROS
 }

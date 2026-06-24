@@ -1,6 +1,10 @@
 package desafio.review_jogos.controller;
 
-import desafio.review_jogos.dto.*;
+import desafio.review_jogos.dto.JogoRequestDto;
+import desafio.review_jogos.dto.JogoResponseDto;
+import desafio.review_jogos.dto.MediaNotasResponseDto;
+import desafio.review_jogos.dto.ReviewRequestDto;
+import desafio.review_jogos.dto.ReviewResponseDto;
 import desafio.review_jogos.mapper.JogoMapper;
 import desafio.review_jogos.model.Jogo;
 import desafio.review_jogos.model.Usuario;
@@ -9,7 +13,6 @@ import desafio.review_jogos.model.enums.Plataforma;
 import desafio.review_jogos.service.JogoService;
 import desafio.review_jogos.service.ReviewService;
 import desafio.review_jogos.validation.OnCreate;
-import desafio.review_jogos.validation.OnUpdate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -95,7 +98,6 @@ public class JogoController {
         return ResponseEntity.ok(jogoService.atualizar(id, dto));
     }
 
-    //Reviews do jogo
     @Operation(summary = "Criar uma review para um jogo")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Review criada com sucesso"),
@@ -109,7 +111,6 @@ public class JogoController {
             @AuthenticationPrincipal Usuario usuarioAutenticado) {
 
         ReviewResponseDto response = reviewService.salvar(id, dto, usuarioAutenticado);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -136,4 +137,3 @@ public class JogoController {
         return ResponseEntity.ok(jogoService.buscarMediaDoJogo(id));
     }
 }
-

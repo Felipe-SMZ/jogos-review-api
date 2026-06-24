@@ -85,7 +85,7 @@ public class JogoService {
 
         jogo.setNome(novoNome);
         jogo.setGenero(dto.genero());
-        jogo.setPlataforma(dto.plataforma());
+        jogo.setPlataformas(dto.plataformas());
         jogo.setImageUrl(dto.imageUrl());
 
         if (dto.summary() != null && dto.summary().isBlank()) {

@@ -68,7 +68,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(List.of(
-//                "http://localhost:5173",   // Vite em desenvolvimento
+               "http://localhost:5173",   // Vite em desenvolvimento
 //                "http://localhost:3000",   // alternativa comum
                 "https://jogos-review-frontend.vercel.app/" // ← substituir quando o frontend estiver no ar
         ));

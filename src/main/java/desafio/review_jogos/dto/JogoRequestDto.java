@@ -10,9 +10,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
 import org.hibernate.validator.constraints.URL;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 public record JogoRequestDto(
         @Null(groups = OnCreate.class, message = "O ID do jogo deve ser nulo ao criar um novo jogo")
@@ -26,8 +28,8 @@ public record JogoRequestDto(
         @NotNull(message = "O gênero do jogo é obrigatório")
         Genero genero,
 
-        @NotNull(message = "A plataforma do jogo é obrigatória")
-        Plataforma plataforma,
+        @NotEmpty(message = "O jogo deve possuir ao menos uma plataforma")
+        Set<Plataforma> plataformas,
 
         @URL(message = "A URL da imagem deve ser válida")
         @Size(max = 500, message = "A URL deve ter no máximo 500 caracteres")

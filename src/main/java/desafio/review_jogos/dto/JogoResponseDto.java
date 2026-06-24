@@ -5,12 +5,13 @@ import desafio.review_jogos.model.enums.Plataforma;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public record JogoResponseDto(
         Long id,
         String nome,
         Genero genero,
-        Plataforma plataforma,
+        Set<Plataforma> plataformas,
         String imageUrl,
         String summary,
         BigDecimal rating,

@@ -20,7 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -46,7 +49,6 @@ class ReviewServiceTest {
 
     @BeforeEach
     void setUp() {
-
         dono = new Usuario(
                 1L,
                 "dono@test.com",
@@ -81,10 +83,13 @@ class ReviewServiceTest {
                 1L,
                 "Game",
                 Genero.RPG,
-                Plataforma.PC,
+                Set.of(Plataforma.PC),
                 null,
                 "Resumo do jogo",
-                new BigDecimal("8.90")
+                new BigDecimal("8.90"),
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                new ArrayList<>()
         );
 
         review = new Review(
